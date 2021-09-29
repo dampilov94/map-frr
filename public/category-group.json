@@ -1,0 +1,38 @@
+[
+    {
+        "id": "111",
+        "name": "Инвестиционные площадки",
+        "type": "CATEGORY_12",
+        "status": "ACTIVE",
+        "objectsCount": 602,
+        "child": [
+            {
+                "id": "111-1",
+                "name": "Здания",
+                "type": "CATEGORY_2",
+                "status": "ACTIVE",
+                "objectsCount": 102,
+                "parentId": "111",
+                "child": []
+            },
+            {
+                "id": "111-2",
+                "name": "Земельные участки",
+                "type": "CATEGORY_1",
+                "status": "ACTIVE",
+                "objectsCount": 471,
+                "parentId": "111",
+                "child": []
+            },
+            {
+                "id": "111-3",
+                "name": "Площадки",
+                "type": "CATEGORY_3",
+                "status": "ACTIVE",
+                "objectsCount": 8,
+                "parentId": "111",
+                "child": []
+            }
+        ]
+    }
+]

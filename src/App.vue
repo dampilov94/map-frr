@@ -14,7 +14,7 @@
 
             <template>
                 <div id="print-content" v-if="activeObject">
-                    <table border="1" style="text-align: left; border-collapse: collapse;" class="table table-bordered">
+                    <table border="1" style="text-align: left; border-collapse: collapse" class="table table-bordered">
                         <tbody>
                             <tr v-if="activeObject['category']['name']">
                                 <th>Категория</th>
@@ -69,57 +69,43 @@
                             </tr>
                             <tr v-if="activeObject['expandability']">
                                 <th>Возможность расширения</th>
-                                <td v-if="activeObject['expandability']">
-                                    Да
-                                </td>
-                                <td v-else>
-                                    Нет
-                                </td>
+                                <td v-if="activeObject['expandability']">Да</td>
+                                <td v-else>Нет</td>
                             </tr>
                             <tr>
                                 <th>Газоснабжение</th>
                                 <td v-if="activeObject['gasSupply']">
                                     {{ activeObject['gasSupply'] }}
                                 </td>
-                                <td v-else>
-                                    -
-                                </td>
+                                <td v-else>-</td>
                             </tr>
                             <tr>
                                 <th>Теплоснабжение</th>
                                 <td v-if="activeObject['heatSupply']">
                                     {{ activeObject['heatSupply'] }}
                                 </td>
-                                <td v-else>
-                                    -
-                                </td>
+                                <td v-else>-</td>
                             </tr>
                             <tr>
                                 <th>Электроснабжение</th>
                                 <td v-if="activeObject['powerSupply']">
                                     {{ activeObject['powerSupply'] }}
                                 </td>
-                                <td v-else>
-                                    -
-                                </td>
+                                <td v-else>-</td>
                             </tr>
                             <tr>
                                 <th>Водоснабжение</th>
                                 <td v-if="activeObject['waterSupply']">
                                     {{ activeObject['waterSupply'] }}
                                 </td>
-                                <td v-else>
-                                    -
-                                </td>
+                                <td v-else>-</td>
                             </tr>
                             <tr>
                                 <th>Водоотведение</th>
                                 <td v-if="activeObject['waterDisposal']">
                                     {{ activeObject['waterDisposal'] }}
                                 </td>
-                                <td v-else>
-                                    -
-                                </td>
+                                <td v-else>-</td>
                             </tr>
                             <tr v-if="activeObject['transportInfrastructureAvailability']">
                                 <th>Наличие транспортной инфраструктуры</th>
@@ -310,8 +296,9 @@
                             <b-nav-item @click="showFilterPanel = true"><b-icon icon="sliders"></b-icon></b-nav-item>
                             <b-nav-item @click="showSearchPanel = true"><b-icon icon="search"></b-icon></b-nav-item>
                             <b-nav-item v-b-modal.modal-share><b-icon icon="share"></b-icon></b-nav-item>
-                            <b-nav-item-dropdown right dropup :no-caret="true">
-                                <!-- Using 'button-content' slot -->
+
+                            <!-- todo: почему то ломается -->
+                            <b-nav-item-dropdown right dropup :no-caret="true" v-if="false">
                                 <template #button-content>
                                     <b-icon icon="list"></b-icon>
                                 </template>
@@ -353,12 +340,12 @@
                             />
                         </div>
                         <div class="form-group">
-                            <v-select
+                            <!-- <v-select
                                 :options="formatingToOptions(allDistricts, 'name', 'id')"
                                 @select="selectedDistrict = $event"
                                 :selected="selectedDistrict.name"
                                 :nullOption="{ name: 'Все районы', value: null }"
-                            />
+                            /> -->
                         </div>
                     </div>
 
@@ -749,9 +736,7 @@
                     <div v-html-js="{ html: b24form }"></div>
 
                     <div v-b-modal.modal-1 class="object-card__btn">
-                        <span>
-                            Показать полную информацию
-                        </span>
+                        <span> Показать полную информацию </span>
                     </div>
                 </div>
             </div>
@@ -832,8 +817,7 @@ export default {
                 // },
                 {
                     name: 'Схема',
-                    url:
-                        'https://api.mapbox.com/styles/v1/investmapbur/ckrbvfgm10xfu17o58y6iv5vn/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiaW52ZXN0bWFwYnVyIiwiYSI6ImNrcmJ1MXhyMjBlZm0zMHBlY3dxZ2N0cm0ifQ.zHcxNLF7KSfDvDCtM963Iw',
+                    url: 'https://api.mapbox.com/styles/v1/investmapbur/ckrbvfgm10xfu17o58y6iv5vn/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiaW52ZXN0bWFwYnVyIiwiYSI6ImNrcmJ1MXhyMjBlZm0zMHBlY3dxZ2N0cm0ifQ.zHcxNLF7KSfDvDCtM963Iw',
                     subdomains: [],
                 },
                 {
@@ -1121,7 +1105,7 @@ export default {
             return arrCategory.length
         },
 
-        del_spaces: function(value) {
+        del_spaces: function (value) {
             if (!value) {
                 return value
             }
@@ -1195,23 +1179,23 @@ export default {
     },
 
     watch: {
-        inputSearch: function() {
+        inputSearch: function () {
             this.searchResultsText = 'Ожидаю, когда вы закончите печатать...'
             this.debouncedSearch()
         },
     },
 
-    created: function() {
+    created: function () {
         this.debouncedSearch = _.debounce(this.getSearchResults, 500)
         this.activeTileLayer = this.tileLayers[0]
         this.center = this.centerBuryatia
     },
 
     async mounted() {
-        this.fetchDistricts()
-        this.fetchLandCategories()
-        this.fetchTypeOfOwnership()
-        this.fetchCategoryGroup()
+        await this.fetchDistricts()
+        await this.fetchLandCategories()
+        await this.fetchTypeOfOwnership()
+        await this.fetchCategoryGroup()
         await this.fetchObjects()
 
         let areaMax = 0

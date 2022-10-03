@@ -1,20 +1,15 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
+
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
-import VueSlider from 'vue-slider-component'
-import store from './store'
+// import VueSlider from 'vue-slider-component'
+import { createStore } from './store'
 import VueHtmlJs from 'vue-html-js'
 
 import 'vue-slider-component/theme/default.css'
-Vue.component('VueSlider', VueSlider)
+
+// Vue.component('VueSlider', VueSlider)
 
 import App from './App.vue'
-
-// Make BootstrapVue available throughout your project
-Vue.use(BootstrapVue)
-// Optionally install the BootstrapVue icon components plugin
-Vue.use(IconsPlugin)
-
-Vue.use(VueHtmlJs)
 
 import { Icon } from 'leaflet'
 
@@ -25,9 +20,21 @@ Icon.Default.mergeOptions({
     shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 })
 
-Vue.config.productionTip = false
+const store = createStore()
 
-new Vue({
-    store,
-    render: (h) => h(App),
-}).$mount('#app')
+const app = createApp({
+    ...App,
+})
+
+app.config.productionTip = false
+
+// Make BootstrapVue available throughout your project
+app.use(BootstrapVue)
+// Optionally install the BootstrapVue icon components plugin
+app.use(IconsPlugin)
+
+app.use(VueHtmlJs)
+
+app.use(store)
+
+app.mount('#app')

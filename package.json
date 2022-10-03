@@ -1,6 +1,6 @@
 {
-    "name": "invest-map",
-    "version": "0.1.0",
+    "name": "map-frr",
+    "version": "1.0.0",
     "private": true,
     "scripts": {
         "serve": "vue-cli-service serve",
@@ -9,29 +9,30 @@
     },
     "dependencies": {
         "@fancyapps/ui": "^4.0.0-alpha.4",
+        "@vue/compat": "^3.2.40",
         "bootstrap": "^4.3.1",
         "bootstrap-vue": "^2.21.2",
         "core-js": "^3.6.5",
         "leaflet": "^1.7.1",
         "lodash": "^4.17.21",
-        "vue": "^2.6.14",
+        "vue": "^3.2.40",
         "vue-html-js": "0.0.2",
         "vue-slider-component": "^3.2.13",
         "vue2-leaflet": "^2.7.1",
         "vue2-leaflet-markercluster": "^3.1.0",
-        "vuex": "^3.6.2"
+        "vuex": "^4.0.0-0"
     },
     "devDependencies": {
-        "@vue/cli-plugin-babel": "~4.5.0",
-        "@vue/cli-plugin-eslint": "~4.5.0",
-        "@vue/cli-service": "~4.5.0",
+        "@vue/cli-plugin-babel": "~5.0.8",
+        "@vue/cli-plugin-eslint": "~5.0.8",
+        "@vue/cli-service": "~5.0.8",
+        "@vue/compiler-sfc": "^3.1.0",
         "babel-eslint": "^10.1.0",
         "cache-loader": "^4.1.0",
-        "eslint": "^6.7.2",
-        "eslint-plugin-vue": "^6.2.2",
+        "eslint": "^7.5.0",
+        "eslint-plugin-vue": "^9.5.1",
         "node-sass": "^6.0.1",
-        "sass-loader": "^10.2.0",
-        "vue-template-compiler": "^2.6.11"
+        "sass-loader": "^10.2.0"
     },
     "eslintConfig": {
         "root": true,

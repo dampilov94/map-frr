@@ -4,11 +4,11 @@
             <template #modal-header="{ close }">
                 <h5 class="custom-modal__title">Полная информация об объекте</h5>
                 <div class="custom-modal__header-btn" @click="callPrint()">
-                    <b-icon icon="printer"></b-icon>
+                    <i class="fa fa-print" aria-hidden="true"></i>
                 </div>
 
                 <div class="custom-modal__header-btn" @click="close()">
-                    <b-icon icon="x"></b-icon>
+                    <i class="fa fa-times" aria-hidden="true"></i>
                 </div>
             </template>
 
@@ -143,7 +143,7 @@
             <template #modal-header="{ close }">
                 <h5 class="custom-modal__title">Выбрать карту</h5>
                 <div class="custom-modal__header-btn" @click="close()">
-                    <b-icon icon="x"></b-icon>
+                    <i class="fa fa-times" aria-hidden="true"></i>
                 </div>
             </template>
 
@@ -173,7 +173,7 @@
             <template #modal-header="{ close }">
                 <h5 class="custom-modal__title">Поделиться картой</h5>
                 <div class="custom-modal__header-btn" @click="close()">
-                    <b-icon icon="x"></b-icon>
+                    <i class="fa fa-times" aria-hidden="true"></i>
                 </div>
             </template>
 
@@ -182,7 +182,7 @@
                     {{ shareLink }}
                 </div>
                 <div class="modal-share__btn" @click="copyShareLink(), hide()">
-                    Скопировать ссылку <b-icon icon="arrow-up-right"></b-icon>
+                    Скопировать ссылку <i class="fa fa-clone" aria-hidden="true"></i>
                 </div>
             </template>
         </b-modal>
@@ -281,26 +281,32 @@
                         <img src="./assets/img/logo-mini.png" class="img-fluid" alt="" />
                     </div>
                     <div class="nav-desktop__item" @click="showFilterPanel = true">
-                        <b-icon icon="search"></b-icon>
+                        <i class="fa fa-search" aria-hidden="true"></i>
                     </div>
                     <div class="nav-desktop__item" @click="showFilterPanel = true">
-                        <b-icon icon="sliders"></b-icon>
+                        <i class="fa fa-sliders" aria-hidden="true"></i>
                     </div>
                     <div class="nav-desktop__toggler" @click="showFilterPanel = true">
-                        <b-icon icon="chevron-right"></b-icon>
+                        <i class="fa fa-chevron-right" aria-hidden="true"></i>
                     </div>
                 </div>
                 <div class="nav-mobile" v-show="!showFilterPanel && !showSearchPanel">
                     <b-navbar type="light" variant="light">
                         <b-navbar-nav class="w-100 justify-content-between">
-                            <b-nav-item @click="showFilterPanel = true"><b-icon icon="sliders"></b-icon></b-nav-item>
-                            <b-nav-item @click="showSearchPanel = true"><b-icon icon="search"></b-icon></b-nav-item>
-                            <b-nav-item v-b-modal.modal-share><b-icon icon="share"></b-icon></b-nav-item>
+                            <b-nav-item @click="showFilterPanel = true"
+                                ><i class="fa fa-sliders" aria-hidden="true"></i
+                            ></b-nav-item>
+                            <b-nav-item @click="showSearchPanel = true"
+                                ><i class="fa fa-search" aria-hidden="true"></i
+                            ></b-nav-item>
+                            <b-nav-item v-b-modal.modal-share
+                                ><i class="fa fa-share" aria-hidden="true"></i
+                            ></b-nav-item>
 
                             <!-- todo: почему то ломается -->
                             <b-nav-item-dropdown right dropup :no-caret="true" v-if="false">
                                 <template #button-content>
-                                    <b-icon icon="list"></b-icon>
+                                    <i class="fa fa-list" aria-hidden="true"></i>
                                 </template>
                                 <b-dropdown-item href="https://invest-buryatia.ru/" target="_blank"
                                     >Инвестиционный портал</b-dropdown-item
@@ -419,6 +425,7 @@
                                         <div class="form-group">
                                             <label>Общая площадь(га)</label>
                                             <div class="filter-slider">
+                                                <!-- todo: Не работает -->
                                                 <vue-slider
                                                     v-model="area"
                                                     :min="areaMarks[0]"
@@ -500,7 +507,7 @@
                         class="search-panel__close"
                         @click=";(activeObject = null), (inputSearch = ''), (showSearchPanel = false)"
                     >
-                        <b-icon icon="x"></b-icon>
+                        <i class="fa fa-times" aria-hidden="true"></i>
                     </div>
                     <div class="search-panel__header">
                         <input
@@ -540,7 +547,7 @@
             <div class="panels__item">
                 <div class="object-card-prev" v-if="activeObject">
                     <div class="object-card-prev__btn" @click="fullscreenObject = true">
-                        <b-icon icon="fullscreen"></b-icon>
+                        <i class="fa fa-arrows-alt" aria-hidden="true"></i>
                     </div>
                     <div class="object-card-prev__category">{{ activeObject['category']['name'] }}</div>
                     <div class="object-card-prev__title">{{ activeObject['title'] }}</div>
@@ -700,14 +707,14 @@
                                         :href="`tel:${del_spaces(activeObject.manager.phone)}`"
                                         class="card-data-block__text"
                                     >
-                                        <b-icon icon="telephone" class="mr-2"></b-icon
-                                        >{{ activeObject['manager']['phone'] }}
+                                        <i class="fa fa-phone" aria-hidden="true"></i>
+                                        {{ activeObject['manager']['phone'] }}
                                     </a>
                                     <a
                                         :href="`mailto:${activeObject['manager']['email']}`"
                                         class="card-data-block__text"
                                     >
-                                        <b-icon icon="envelope" class="mr-2"></b-icon
+                                        <i class="fa fa-envelope" aria-hidden="true"></i
                                         >{{ activeObject['manager']['email'] }}
                                     </a>
                                 </div>
@@ -783,16 +790,15 @@
 </template>
 
 <script>
-import vSelect from './components/v-select'
-import { mapGetters, mapActions } from 'vuex'
+import './assets/styles/index.scss'
 import _ from 'lodash'
+import { mapGetters, mapActions } from 'vuex'
+import { Fancybox } from '@fancyapps/ui/src/Fancybox/Fancybox.js'
+import vSelect from './components/v-select'
 
+// На замену
 import { LMap, LTileLayer, LMarker, LIcon, LPolygon, LPopup, LControlZoom } from 'vue2-leaflet'
 import Vue2LeafletMarkerCluster from 'vue2-leaflet-markercluster'
-
-import { Fancybox } from '@fancyapps/ui/src/Fancybox/Fancybox.js'
-
-import './assets/styles/index.scss'
 
 export default {
     name: 'App',
@@ -810,16 +816,16 @@ export default {
     data() {
         return {
             tileLayers: [
-                // {
-                //     name: 'Схема',
-                //     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                //     subdomains: ['a', 'b', 'c'],
-                // },
                 {
                     name: 'Схема',
-                    url: 'https://api.mapbox.com/styles/v1/investmapbur/ckrbvfgm10xfu17o58y6iv5vn/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiaW52ZXN0bWFwYnVyIiwiYSI6ImNrcmJ1MXhyMjBlZm0zMHBlY3dxZ2N0cm0ifQ.zHcxNLF7KSfDvDCtM963Iw',
-                    subdomains: [],
+                    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: ['a', 'b', 'c'],
                 },
+                // {
+                //     name: 'Схема',
+                //     url: 'https://api.mapbox.com/styles/v1/investmapbur/ckrbvfgm10xfu17o58y6iv5vn/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiaW52ZXN0bWFwYnVyIiwiYSI6ImNrcmJ1MXhyMjBlZm0zMHBlY3dxZ2N0cm0ifQ.zHcxNLF7KSfDvDCtM963Iw',
+                //     subdomains: [],
+                // },
                 {
                     name: 'Спутник',
                     url: 'https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',

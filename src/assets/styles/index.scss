@@ -198,6 +198,10 @@ body {
     margin: 0;
     z-index: 1000;
 
+    a {
+        text-decoration: none;
+    }
+
     &__item {
         flex: 0 0 auto;
         width: auto;
@@ -235,7 +239,7 @@ body {
 
     &__logo {
         display: inline-block;
-        width: 260px;
+        width: 255px;
         margin-right: 10px;
     }
 
@@ -654,13 +658,24 @@ body {
     }
 
     &__close {
+        padding: 5px;
         position: absolute;
         right: 28px;
-        top: 34px;
+        top: 25px;
         text-align: center;
+        background-color: #3036a7;
         cursor: pointer;
+        z-index: 8;
+        border-radius: 100%;
 
-        opacity: 0.3;
+        @media (max-width: 991.98px) {
+            display: none;
+            position: fixed;
+
+            .fullscreen & {
+                display: block;
+            }
+        }
 
         &:hover {
             opacity: 1;
@@ -718,7 +733,7 @@ body {
             height: 60px;
             margin-bottom: 2px;
         }
-        .form-row {
+        .row {
             margin-right: -1px;
             margin-left: -1px;
             > .col,
@@ -1080,6 +1095,20 @@ body {
 .card-manager {
     &__image {
         width: 100px;
+    }
+
+    .row {
+        margin-right: -5px;
+        margin-left: -5px;
+        > .col,
+        > [class*='col-'] {
+            padding-right: 5px;
+            padding-left: 5px;
+        }
+    }
+
+    i {
+        margin-right: 10px;
     }
 
     a {

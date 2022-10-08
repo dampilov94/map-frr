@@ -367,7 +367,7 @@
             <div class="panels__item">
                 <div class="filter-panel" v-show="showFilterPanel">
                     <div class="filter-panel__header">
-                        <div class="form-row mb-4 mb-lg-5">
+                        <div class="row mb-4 mb-lg-5">
                             <div class="col my-auto">
                                 <a href="/index1.php">
                                     <img src="./assets/logo.png" alt="" class="filter-panel__logo d-none d-lg-block" />
@@ -420,7 +420,7 @@
                     </div>
                     <div class="filter-panel__body custom-scroll" v-else>
                         <div class="accordion filter-accordion" id="filter-accordion">
-                            <div class="accordion-item mb-3" v-for="item in allCategoryGroup" :key="item.id">
+                            <div class="mb-3" v-for="item in allCategoryGroup" :key="item.id">
                                 <div @click="showCollapse('accordion-' + item.id)" class="accordion-btn">
                                     <label class="checkbox-btn" v-on:click.stop>
                                         <input type="checkbox" :value="item.id" v-model="checkedCategoriesGroups" />
@@ -610,7 +610,7 @@
                                 </a>
                             </div>
                             <div class="card-gallery__thumbs">
-                                <div class="form-row">
+                                <div class="row">
                                     <div
                                         class="col-3"
                                         v-for="(item, index) in activeObject['photos']"
@@ -633,7 +633,7 @@
                             {{ activeObject['typeArea'] }}
                         </span>
                     </div>
-                    <div class="form-row">
+                    <div class="row">
                         <div class="col-6">
                             <div class="card-data-block">
                                 <div class="card-data-block__title">Общая площадь(га)</div>
@@ -651,7 +651,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-row">
+                    <div class="row">
                         <div class="col-6">
                             <div class="card-data-block">
                                 <div class="card-data-block__title">Адрес:</div>
@@ -728,7 +728,7 @@
                     <div class="card-data-block" v-if="activeObject['manager']['name']">
                         <div class="card-data-block__title">Контактное лицо</div>
                         <div class="card-manager">
-                            <div class="form-row">
+                            <div class="row">
                                 <div class="col-auto my-auto">
                                     <div class="card-manager__image">
                                         <img :src="activeObject['manager']['photo']" class="img-fluid" />

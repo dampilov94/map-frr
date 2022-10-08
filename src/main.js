@@ -6,7 +6,6 @@ import { createStore } from './store'
 import VueHtmlJs from 'vue-html-js'
 
 // На замену
-import { BootstrapVue } from 'bootstrap-vue'
 import VueSlider from 'vue-slider-component'
 import { Icon } from 'leaflet'
 import 'vue-slider-component/theme/default.css'
@@ -27,7 +26,6 @@ app.config.productionTip = false
 
 app.component('VueSlider', VueSlider)
 
-app.use(BootstrapVue)
 app.use(VueHtmlJs)
 app.use(store)
 

@@ -1,201 +1,224 @@
 <template>
     <div id="invest-map">
-        <b-modal id="modal-1" size="xl" class="custom-modal" scrollable hide-footer>
-            <template #modal-header="{ close }">
-                <h5 class="custom-modal__title">Полная информация об объекте</h5>
-                <div class="custom-modal__header-btn" @click="callPrint()">
-                    <i class="fa fa-print" aria-hidden="true"></i>
+        <div id="modal-1" class="modal custom-modal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-scrollable modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="custom-modal__title">Полная информация об объекте</h5>
+                        <div class="custom-modal__header-btn" @click="callPrint()">
+                            <i class="fa fa-print" aria-hidden="true"></i>
+                        </div>
+                        <div class="custom-modal__header-btn" @click="hideModal('modal-1')">
+                            <i class="fa fa-times" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div id="print-content" v-if="activeObject">
+                            <table
+                                border="1"
+                                style="text-align: left; border-collapse: collapse"
+                                class="table table-bordered"
+                            >
+                                <tbody>
+                                    <tr v-if="activeObject['category']['name']">
+                                        <th>Категория</th>
+                                        <td>{{ activeObject['category']['name'] }}</td>
+                                    </tr>
+                                    <tr v-if="activeObject['typeObject']">
+                                        <th>Тип объекта</th>
+                                        <td>{{ activeObject['typeObject'] }}</td>
+                                    </tr>
+                                    <tr v-if="activeObject['title']">
+                                        <th>Название</th>
+                                        <td>{{ activeObject['title'] }}</td>
+                                    </tr>
+                                    <tr v-if="activeObject['landCategory']">
+                                        <th>Категория земель</th>
+                                        <td>{{ getLangCategory(activeObject['landCategory']) }}</td>
+                                    </tr>
+                                    <tr v-if="activeObject['landTenure']">
+                                        <th>Вид права владения землей</th>
+                                        <td>{{ activeObject['landTenure'] }}</td>
+                                    </tr>
+                                    <tr v-if="activeObject['municipalArea']">
+                                        <th>Муниципальное образование</th>
+                                        <td>{{ getMunicipalArea(activeObject['municipalArea']) }}</td>
+                                    </tr>
+                                    <tr v-if="activeObject['owner']">
+                                        <th>Собственник</th>
+                                        <td>{{ activeObject['owner'] }}</td>
+                                    </tr>
+                                    <tr v-if="activeObject['typeOfOwnership']['title']">
+                                        <th>Форма собственности</th>
+                                        <td>{{ activeObject['typeOfOwnership']['title'] }}</td>
+                                    </tr>
+                                    <tr v-if="activeObject['specialPurpose']">
+                                        <th>
+                                            Целевое (приоритетное) назначение земельного участка, имеющиеся ограничения
+                                            использования
+                                        </th>
+                                        <td>{{ activeObject['specialPurpose'] }}</td>
+                                    </tr>
+                                    <tr v-if="activeObject['area']">
+                                        <th>Общая площадь(га)</th>
+                                        <td>{{ activeObject['area'] }}</td>
+                                    </tr>
+                                    <tr v-if="activeObject['free_area']">
+                                        <th>Свободная площадь(га)</th>
+                                        <td>{{ activeObject['free_area'] }}</td>
+                                    </tr>
+                                    <tr v-if="activeObject['cadastralNumber']">
+                                        <th>Кадастровый номер земельного участка</th>
+                                        <td>{{ activeObject['cadastralNumber'] }}</td>
+                                    </tr>
+                                    <tr v-if="activeObject['expandability']">
+                                        <th>Возможность расширения</th>
+                                        <td v-if="activeObject['expandability']">Да</td>
+                                        <td v-else>Нет</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Газоснабжение</th>
+                                        <td v-if="activeObject['gasSupply']">
+                                            {{ activeObject['gasSupply'] }}
+                                        </td>
+                                        <td v-else>-</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Теплоснабжение</th>
+                                        <td v-if="activeObject['heatSupply']">
+                                            {{ activeObject['heatSupply'] }}
+                                        </td>
+                                        <td v-else>-</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Электроснабжение</th>
+                                        <td v-if="activeObject['powerSupply']">
+                                            {{ activeObject['powerSupply'] }}
+                                        </td>
+                                        <td v-else>-</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Водоснабжение</th>
+                                        <td v-if="activeObject['waterSupply']">
+                                            {{ activeObject['waterSupply'] }}
+                                        </td>
+                                        <td v-else>-</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Водоотведение</th>
+                                        <td v-if="activeObject['waterDisposal']">
+                                            {{ activeObject['waterDisposal'] }}
+                                        </td>
+                                        <td v-else>-</td>
+                                    </tr>
+                                    <tr v-if="activeObject['transportInfrastructureAvailability']">
+                                        <th>Наличие транспортной инфраструктуры</th>
+                                        <td>{{ activeObject['transportInfrastructureAvailability'] }}</td>
+                                    </tr>
+
+                                    <tr v-if="activeObject['privileges']">
+                                        <th>Льготы и преференции</th>
+                                        <td>{{ activeObject['privileges'] }}</td>
+                                    </tr>
+
+                                    <tr v-if="activeObject['provisionTerms']">
+                                        <th>Условия предоставления инвестору</th>
+                                        <td>{{ activeObject['provisionTerms'] }}</td>
+                                    </tr>
+                                    <tr v-if="activeObject['dopInfo']">
+                                        <th>Дополнительная информация</th>
+                                        <td v-html="activeObject['dopInfo']"></td>
+                                    </tr>
+                                    <tr v-if="activeObject['contact']">
+                                        <th>Контактное лицо</th>
+                                        <td>{{ activeObject['contact'] }}</td>
+                                    </tr>
+                                    <tr v-if="activeObject['phone']">
+                                        <th>Телефон</th>
+                                        <td>{{ activeObject['phone'] }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="custom-modal__header-btn" @click="close()">
-                    <i class="fa fa-times" aria-hidden="true"></i>
+        <div id="modal-share-new" class="modal custom-modal modal-share">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="custom-modal__title">Поделиться картой</h5>
+                        <div class="custom-modal__header-btn" @click="hideModal('modal-share-new')">
+                            <i class="fa fa-times" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="modal-share__field">
+                            {{ shareLink }}
+                        </div>
+                        <div class="modal-share__btn" @click="copyShareLink(), hideModal('modal-share-new')">
+                            Скопировать ссылку <i class="fa fa-clone" aria-hidden="true"></i>
+                        </div>
+                    </div>
                 </div>
-            </template>
+            </div>
+        </div>
 
-            <template>
-                <div id="print-content" v-if="activeObject">
-                    <table border="1" style="text-align: left; border-collapse: collapse" class="table table-bordered">
-                        <tbody>
-                            <tr v-if="activeObject['category']['name']">
-                                <th>Категория</th>
-                                <td>{{ activeObject['category']['name'] }}</td>
-                            </tr>
-                            <tr v-if="activeObject['typeObject']">
-                                <th>Тип объекта</th>
-                                <td>{{ activeObject['typeObject'] }}</td>
-                            </tr>
-                            <tr v-if="activeObject['title']">
-                                <th>Название</th>
-                                <td>{{ activeObject['title'] }}</td>
-                            </tr>
-                            <tr v-if="activeObject['landCategory']">
-                                <th>Категория земель</th>
-                                <td>{{ getLangCategory(activeObject['landCategory']) }}</td>
-                            </tr>
-                            <tr v-if="activeObject['landTenure']">
-                                <th>Вид права владения землей</th>
-                                <td>{{ activeObject['landTenure'] }}</td>
-                            </tr>
-                            <tr v-if="activeObject['municipalArea']">
-                                <th>Муниципальное образование</th>
-                                <td>{{ getMunicipalArea(activeObject['municipalArea']) }}</td>
-                            </tr>
-                            <tr v-if="activeObject['owner']">
-                                <th>Собственник</th>
-                                <td>{{ activeObject['owner'] }}</td>
-                            </tr>
-                            <tr v-if="activeObject['typeOfOwnership']['title']">
-                                <th>Форма собственности</th>
-                                <td>{{ activeObject['typeOfOwnership']['title'] }}</td>
-                            </tr>
-                            <tr v-if="activeObject['specialPurpose']">
-                                <th>
-                                    Целевое (приоритетное) назначение земельного участка, имеющиеся ограничения
-                                    использования
-                                </th>
-                                <td>{{ activeObject['specialPurpose'] }}</td>
-                            </tr>
-                            <tr v-if="activeObject['area']">
-                                <th>Общая площадь(га)</th>
-                                <td>{{ activeObject['area'] }}</td>
-                            </tr>
-                            <tr v-if="activeObject['free_area']">
-                                <th>Свободная площадь(га)</th>
-                                <td>{{ activeObject['free_area'] }}</td>
-                            </tr>
-                            <tr v-if="activeObject['cadastralNumber']">
-                                <th>Кадастровый номер земельного участка</th>
-                                <td>{{ activeObject['cadastralNumber'] }}</td>
-                            </tr>
-                            <tr v-if="activeObject['expandability']">
-                                <th>Возможность расширения</th>
-                                <td v-if="activeObject['expandability']">Да</td>
-                                <td v-else>Нет</td>
-                            </tr>
-                            <tr>
-                                <th>Газоснабжение</th>
-                                <td v-if="activeObject['gasSupply']">
-                                    {{ activeObject['gasSupply'] }}
-                                </td>
-                                <td v-else>-</td>
-                            </tr>
-                            <tr>
-                                <th>Теплоснабжение</th>
-                                <td v-if="activeObject['heatSupply']">
-                                    {{ activeObject['heatSupply'] }}
-                                </td>
-                                <td v-else>-</td>
-                            </tr>
-                            <tr>
-                                <th>Электроснабжение</th>
-                                <td v-if="activeObject['powerSupply']">
-                                    {{ activeObject['powerSupply'] }}
-                                </td>
-                                <td v-else>-</td>
-                            </tr>
-                            <tr>
-                                <th>Водоснабжение</th>
-                                <td v-if="activeObject['waterSupply']">
-                                    {{ activeObject['waterSupply'] }}
-                                </td>
-                                <td v-else>-</td>
-                            </tr>
-                            <tr>
-                                <th>Водоотведение</th>
-                                <td v-if="activeObject['waterDisposal']">
-                                    {{ activeObject['waterDisposal'] }}
-                                </td>
-                                <td v-else>-</td>
-                            </tr>
-                            <tr v-if="activeObject['transportInfrastructureAvailability']">
-                                <th>Наличие транспортной инфраструктуры</th>
-                                <td>{{ activeObject['transportInfrastructureAvailability'] }}</td>
-                            </tr>
+        <div id="modal-select-map" class="modal custom-modal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="custom-modal__title">Выбрать карту</h5>
 
-                            <tr v-if="activeObject['privileges']">
-                                <th>Льготы и преференции</th>
-                                <td>{{ activeObject['privileges'] }}</td>
-                            </tr>
-
-                            <tr v-if="activeObject['provisionTerms']">
-                                <th>Условия предоставления инвестору</th>
-                                <td>{{ activeObject['provisionTerms'] }}</td>
-                            </tr>
-                            <tr v-if="activeObject['dopInfo']">
-                                <th>Дополнительная информация</th>
-                                <td v-html="activeObject['dopInfo']"></td>
-                            </tr>
-                            <tr v-if="activeObject['contact']">
-                                <th>Контактное лицо</th>
-                                <td>{{ activeObject['contact'] }}</td>
-                            </tr>
-                            <tr v-if="activeObject['phone']">
-                                <th>Телефон</th>
-                                <td>{{ activeObject['phone'] }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                        <div class="custom-modal__header-btn" @click="hideModal('modal-select-map')">
+                            <i class="fa fa-times" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="select-map">
+                            <li
+                                class="select-map-item"
+                                @click="setActiveTileLayer(item)"
+                                v-for="(item, index) in tileLayers"
+                                :key="index"
+                                v-bind:class="[activeTileLayer == item ? 'active' : '']"
+                            >
+                                {{ item.name }}
+                            </li>
+                            <li
+                                class="select-map-item"
+                                v-bind:class="{ active: showDistricts }"
+                                @click="showDistricts = !showDistricts"
+                            >
+                                Районы
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-            </template>
-        </b-modal>
+            </div>
+        </div>
 
-        <b-modal id="modal-select-map" class="custom-modal" hide-footer centered>
-            <template #modal-header="{ close }">
-                <h5 class="custom-modal__title">Выбрать карту</h5>
-                <div class="custom-modal__header-btn" @click="close()">
-                    <i class="fa fa-times" aria-hidden="true"></i>
+        <div class="position-fixed top-0 end-0 p-3" style="z-index: 999999">
+            <div
+                id="liveToast"
+                class="toast align-items-center text-white bg-success border-0"
+                role="alert"
+                aria-live="assertive"
+                aria-atomic="true"
+            >
+                <div class="d-flex">
+                    <div class="toast-body">Ссылка скопирована.</div>
+                    <button
+                        type="button"
+                        class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast"
+                        aria-label="Close"
+                    ></button>
                 </div>
-            </template>
-
-            <template>
-                <ul class="select-map">
-                    <li
-                        class="select-map-item"
-                        @click="setActiveTileLayer(item)"
-                        v-for="(item, index) in tileLayers"
-                        :key="index"
-                        v-bind:class="[activeTileLayer == item ? 'active' : '']"
-                    >
-                        {{ item.name }}
-                    </li>
-                    <li
-                        class="select-map-item"
-                        v-bind:class="{ active: showDistricts }"
-                        @click="showDistricts = !showDistricts"
-                    >
-                        Районы
-                    </li>
-                </ul>
-            </template>
-        </b-modal>
-
-        <b-modal id="modal-share" class="custom-modal modal-share" hide-footer centered>
-            <template #modal-header="{ close }">
-                <h5 class="custom-modal__title">Поделиться картой</h5>
-                <div class="custom-modal__header-btn" @click="close()">
-                    <i class="fa fa-times" aria-hidden="true"></i>
-                </div>
-            </template>
-
-            <template #default="{ hide }">
-                <div class="modal-share__field">
-                    {{ shareLink }}
-                </div>
-                <div class="modal-share__btn" @click="copyShareLink(), hide()">
-                    Скопировать ссылку <i class="fa fa-clone" aria-hidden="true"></i>
-                </div>
-            </template>
-        </b-modal>
-        <b-alert
-            :show="dismissCountDown"
-            dismissible
-            variant="success"
-            class="flying-alert"
-            @dismissed="dismissCountDown = 0"
-            @dismiss-count-down="countDownChanged"
-        >
-            Ссылка скопирована.
-        </b-alert>
+            </div>
+        </div>
 
         <l-map
             style="height: 100%; width: 100%"
@@ -291,32 +314,55 @@
                     </div>
                 </div>
                 <div class="nav-mobile" v-show="!showFilterPanel && !showSearchPanel">
-                    <b-navbar type="light" variant="light">
-                        <b-navbar-nav class="w-100 justify-content-between">
-                            <b-nav-item @click="showFilterPanel = true"
-                                ><i class="fa fa-sliders" aria-hidden="true"></i
-                            ></b-nav-item>
-                            <b-nav-item @click="showSearchPanel = true"
-                                ><i class="fa fa-search" aria-hidden="true"></i
-                            ></b-nav-item>
-                            <b-nav-item v-b-modal.modal-share
-                                ><i class="fa fa-share" aria-hidden="true"></i
-                            ></b-nav-item>
+                    <nav class="navbar navbar-light bg-light navbar-expand">
+                        <div class="navbar-nav w-100 justify-content-between">
+                            <li class="nav-item">
+                                <a class="nav-link" @click.prevent="showFilterPanel = true">
+                                    <i class="fa fa-sliders" aria-hidden="true"></i>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" @click.prevent="showSearchPanel = true">
+                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                </a>
+                            </li>
 
-                            <!-- todo: почему то ломается -->
-                            <b-nav-item-dropdown right dropup :no-caret="true" v-if="false">
-                                <template #button-content>
-                                    <i class="fa fa-list" aria-hidden="true"></i>
-                                </template>
-                                <b-dropdown-item href="https://invest-buryatia.ru/" target="_blank"
-                                    >Инвестиционный портал</b-dropdown-item
+                            <li class="nav-item">
+                                <a class="nav-link" @click.prevent="showModal('modal-share-new')" target="_self"
+                                    ><i class="fa fa-share" aria-hidden="true"></i
+                                ></a>
+                            </li>
+                            <li class="nav-item dropdown dropup">
+                                <a
+                                    class="nav-link dropdown-toggle"
+                                    href="#"
+                                    role="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
                                 >
-                                <b-dropdown-item @click="showBuryatia()">К республике Бурятия</b-dropdown-item>
-                                <b-dropdown-item v-b-modal.modal-select-map>Выбрать карту</b-dropdown-item>
-                                <b-dropdown-item href="#">Изменить язык</b-dropdown-item>
-                            </b-nav-item-dropdown>
-                        </b-navbar-nav>
-                    </b-navbar>
+                                    <i class="fa fa-list" aria-hidden="true"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="https://invest-buryatia.ru/" target="_blank"
+                                            >Инвестиционный портал
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" @click.prevent="showBuryatia()"
+                                            >К республике Бурятия
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" @click.prevent="showModal('modal-select-map')"
+                                            >Выбрать карту
+                                        </a>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">Изменить язык</a></li>
+                                </ul>
+                            </li>
+                        </div>
+                    </nav>
                 </div>
             </div>
             <div class="panels__item">
@@ -374,21 +420,20 @@
                         </div>
                     </div>
                     <div class="filter-panel__body custom-scroll" v-else>
-                        <div class="accordion filter-accordion">
-                            <div class="mb-3" v-for="item in allCategoryGroup" :key="item.id">
-                                <div v-b-toggle="'accordion-' + item.id" class="accordion-btn">
+                        <div class="accordion filter-accordion" id="filter-accordion">
+                            <div class="accordion-item mb-3" v-for="item in allCategoryGroup" :key="item.id">
+                                <a data-bs-toggle="collapse" :href="'#accordion-' + item.id" class="accordion-btn">
                                     <label class="checkbox-btn" v-on:click.stop>
                                         <input type="checkbox" :value="item.id" v-model="checkedCategoriesGroups" />
                                         <div class="checkbox-btn__cont"></div>
                                     </label>
                                     {{ item.name }}
                                     <div class="accordion-btn__count">{{ countOfCategoryGroup(item.id) }}</div>
-                                </div>
-                                <b-collapse
+                                </a>
+                                <div
+                                    class="collapse accordion-collapse show"
                                     :id="'accordion-' + item.id"
-                                    visible
-                                    accordion="my-accordion"
-                                    role="tabpanel"
+                                    data-bs-parent="#filter-accordion"
                                 >
                                     <div class="py-3" v-if="item.type == 'filter'">
                                         <div class="form-group">
@@ -496,7 +541,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </b-collapse>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -521,19 +566,20 @@
                             <div class="search-panel__text">
                                 {{ searchResultsText }}
                             </div>
-                            <a href="#" class="search-panel__nav-btn" v-b-toggle.search-panel-body>
+                            <a class="search-panel__nav-btn" data-bs-toggle="collapse" href="#search-panel-body">
+                                <!-- todo: searchPanelBody не используется -->
                                 <span v-if="searchPanelBody">Показать на карте</span>
                                 <span v-else>Показать списком</span>
                             </a>
                         </div>
                     </div>
-                    <b-collapse id="search-panel-body" :appear="true" v-model="searchPanelBody">
+                    <div class="collapse" id="search-panel-body">
                         <div class="search-panel__body custom-scroll">
                             <div
                                 class="search-result"
                                 v-for="item in searchResults"
                                 :key="item.id"
-                                @click="showObjectInfo(item), (searchPanelBody = false)"
+                                @click="showObjectInfo(item), hideCollapse('search-panel-body')"
                                 v-bind:class="[activeObject == item ? 'active' : '']"
                             >
                                 <div class="search-result__category">{{ item['category']['name'] }}</div>
@@ -541,7 +587,7 @@
                                 <div class="search-result__address">{{ item['address'] }}</div>
                             </div>
                         </div>
-                    </b-collapse>
+                    </div>
                 </div>
             </div>
             <div class="panels__item">
@@ -742,7 +788,7 @@
 
                     <div v-html-js="{ html: b24form }"></div>
 
-                    <div v-b-modal.modal-1 class="object-card__btn">
+                    <div @click="showModal('modal-1')" class="object-card__btn">
                         <span> Показать полную информацию </span>
                     </div>
                 </div>
@@ -757,13 +803,17 @@
                 <button class="top-panel__btn show-bur" @click="showBuryatia()"></button>
             </div>
             <div class="top-panel-item" title="Поделиться">
-                <button class="top-panel__btn show-share" v-b-modal.modal-share></button>
+                <button class="top-panel__btn show-share" @click="showModal('modal-share-new')"></button>
             </div>
             <div class="top-panel-item" title="Выбрать карту">
-                <button class="top-panel__btn show-layers" v-b-toggle.top-panel-collapse-1></button>
+                <button
+                    class="top-panel__btn show-layers"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#top-panel-collapse-1"
+                ></button>
 
                 <div class="top-panel-item__content">
-                    <b-collapse id="top-panel-collapse-1" :appear="true">
+                    <div class="collapse" id="top-panel-collapse-1">
                         <ul class="panel-list">
                             <li
                                 class="panel-list-item"
@@ -782,7 +832,7 @@
                                 Районы
                             </li>
                         </ul>
-                    </b-collapse>
+                    </div>
                 </div>
             </div>
         </div>
@@ -795,6 +845,7 @@ import _ from 'lodash'
 import { mapGetters, mapActions } from 'vuex'
 import { Fancybox } from '@fancyapps/ui/src/Fancybox/Fancybox.js'
 import vSelect from './components/v-select'
+import bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
 // На замену
 import { LMap, LTileLayer, LMarker, LIcon, LPolygon, LPopup, LControlZoom } from 'vue2-leaflet'
@@ -853,8 +904,6 @@ export default {
                 CATEGORY_71: require('./assets/icons/place.png'),
             },
 
-            dismissSecs: 3,
-            dismissCountDown: 0,
             activeObject: null,
             fullscreenObject: false,
 
@@ -893,6 +942,31 @@ export default {
             'fetchObjects',
         ]),
 
+        showModal(id) {
+            const myModal = new bootstrap.Modal(document.getElementById(id))
+
+            myModal.show()
+        },
+
+        hideModal(id) {
+            const truck_modal = document.querySelector('#' + id)
+            const modal = bootstrap.Modal.getInstance(truck_modal)
+            modal.hide()
+        },
+
+        showToast(id) {
+            const toastLive = document.getElementById(id)
+            const toast = new bootstrap.Toast(toastLive)
+
+            toast.show()
+        },
+
+        hideCollapse(id) {
+            var myCollapse = document.getElementById(id)
+            const bsCollapse = new bootstrap.Collapse(myCollapse)
+            bsCollapse.hide()
+        },
+
         zoomUpdated(zoom) {
             this.zoom = zoom
         },
@@ -903,14 +977,10 @@ export default {
         copyShareLink() {
             try {
                 navigator.clipboard.writeText(this.shareLink)
-                this.dismissCountDown = this.dismissSecs
+                this.showToast('liveToast')
             } catch (e) {
                 console.log('Ошибка ' + e.name + ':' + e.message + '\n' + e.stack)
             }
-        },
-
-        countDownChanged(dismissCountDown) {
-            this.dismissCountDown = dismissCountDown
         },
 
         formatingToOptions(options, name, value) {

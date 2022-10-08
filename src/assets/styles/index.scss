@@ -4,7 +4,7 @@
 
 @import '~@fancyapps/ui/dist/fancybox.css';
 
-@import '~bootstrap/dist/css/bootstrap.css';
+@import '~bootstrap/dist/css/bootstrap.min.css';
 @import '~bootstrap-vue/dist/bootstrap-vue.css';
 
 #invest-map {
@@ -38,7 +38,11 @@
 }
 
 .dropup .dropdown-menu {
-    bottom: calc(100% + 8px);
+    bottom: calc(100% + 8px) !important;
+}
+
+.nav-mobile .dropdown .dropdown-toggle::after {
+    content: none;
 }
 
 .form-control {
@@ -471,6 +475,7 @@ body {
 }
 
 .accordion-btn {
+    display: block;
     position: relative;
     width: 100%;
     height: 60px;

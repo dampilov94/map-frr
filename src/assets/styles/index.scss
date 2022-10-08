@@ -421,56 +421,17 @@ body {
 
 .filter-slider {
     padding: 0px 15px;
-    margin-bottom: 40px;
+    margin-top: 10px;
+    margin-bottom: 50px;
 }
 
-.vue-slider-rail {
-    background: #e9e9f6;
-    border-radius: 1px;
+.slider-connect {
+    background: #292e91;
 }
 
-.vue-slider-dot-handle {
-    background: linear-gradient(117.02deg, #f7ce38 -2.53%, #fc210d 134.16%);
-    box-shadow: none;
-    position: relative;
-    &::before {
-        position: absolute;
-        content: '';
-        top: 4px;
-        bottom: 4px;
-        left: 4px;
-        right: 4px;
-        background-color: #fff;
-        border-radius: 100%;
-    }
-}
-
-.vue-slider-dot-tooltip-inner {
-    border: none;
-    background-color: transparent;
-    min-width: auto;
-    font-weight: 600;
-    font-size: 10px;
-    line-height: 18px;
-    color: #292e91;
-    padding: 0;
-}
-
-.vue-slider-dot-tooltip-bottom {
-    bottom: -12px;
-}
-.vue-slider-dot-tooltip-inner-bottom::after {
-    bottom: 100%;
-    left: 50%;
-    transform: translate(-50%, 0);
-    height: 8px;
-    width: 1px;
-    background-color: #4ca9df;
-    border: none;
-}
-
-.vue-slider-process {
-    background-color: #292e91;
+.slider-tooltip {
+    background: #292e91;
+    border: 1px solid #292e91;
 }
 
 .accordion-btn {

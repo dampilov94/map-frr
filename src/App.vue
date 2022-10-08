@@ -326,7 +326,6 @@
                                     <i class="fa fa-search" aria-hidden="true"></i>
                                 </a>
                             </li>
-
                             <li class="nav-item">
                                 <a class="nav-link" @click.prevent="showModal('modal-share-new')" target="_self"
                                     ><i class="fa fa-share" aria-hidden="true"></i
@@ -392,12 +391,12 @@
                             />
                         </div>
                         <div class="form-group">
-                            <!-- <v-select
+                            <v-select
                                 :options="formatingToOptions(allDistricts, 'name', 'id')"
                                 @select="selectedDistrict = $event"
                                 :selected="selectedDistrict.name"
                                 :nullOption="{ name: 'Все районы', value: null }"
-                            /> -->
+                            />
                         </div>
                     </div>
 
@@ -422,14 +421,14 @@
                     <div class="filter-panel__body custom-scroll" v-else>
                         <div class="accordion filter-accordion" id="filter-accordion">
                             <div class="accordion-item mb-3" v-for="item in allCategoryGroup" :key="item.id">
-                                <a data-bs-toggle="collapse" :href="'#accordion-' + item.id" class="accordion-btn">
+                                <div @click="showCollapse('accordion-' + item.id)" class="accordion-btn">
                                     <label class="checkbox-btn" v-on:click.stop>
                                         <input type="checkbox" :value="item.id" v-model="checkedCategoriesGroups" />
                                         <div class="checkbox-btn__cont"></div>
                                     </label>
                                     {{ item.name }}
                                     <div class="accordion-btn__count">{{ countOfCategoryGroup(item.id) }}</div>
-                                </a>
+                                </div>
                                 <div
                                     class="collapse accordion-collapse show"
                                     :id="'accordion-' + item.id"
@@ -470,17 +469,12 @@
                                         <div class="form-group">
                                             <label>Общая площадь(га)</label>
                                             <div class="filter-slider">
-                                                <!-- todo: Не работает -->
-                                                <vue-slider
+                                                <Slider
                                                     v-model="area"
+                                                    tooltipPosition="bottom"
                                                     :min="areaMarks[0]"
                                                     :max="areaMarks[1]"
-                                                    :tooltip="'always'"
-                                                    :lazy="true"
-                                                    :height="10"
-                                                    :tooltip-placement="'bottom'"
-                                                    :dot-size="[30, 30]"
-                                                ></vue-slider>
+                                                />
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -491,21 +485,17 @@
                                                 :nullOption="{ name: 'Форма собственности', value: null }"
                                             />
                                         </div>
-                                        <!-- <div class="form-group">
+                                        <div class="form-group">
                                             <label>До Улан-Удэ (км)</label>
                                             <div class="filter-slider">
-                                                <vue-slider
+                                                <Slider
+                                                    tooltipPosition="bottom"
                                                     v-model="distances"
                                                     :min="distancesMarks[0]"
                                                     :max="distancesMarks[1]"
-                                                    :tooltip="'always'"
-                                                    :lazy="true"
-                                                    :height="10"
-                                                    :tooltip-placement="'bottom'"
-                                                    :dot-size="[30, 30]"
-                                                ></vue-slider>
+                                                />
                                             </div>
-                                        </div> -->
+                                        </div>
                                         <div class="form-group">
                                             <label class="category-checkbox" v-for="ch in item.child" :key="ch.id">
                                                 <input
@@ -840,6 +830,8 @@
 </template>
 
 <script>
+import Slider from '@vueform/slider'
+import '@vueform/slider/themes/default.css'
 import './assets/styles/index.scss'
 import _ from 'lodash'
 import { mapGetters, mapActions } from 'vuex'
@@ -854,6 +846,7 @@ import Vue2LeafletMarkerCluster from 'vue2-leaflet-markercluster'
 export default {
     name: 'App',
     components: {
+        Slider,
         vSelect,
         LMap,
         LTileLayer,
@@ -864,8 +857,51 @@ export default {
         LControlZoom,
         VMarkerCluster: Vue2LeafletMarkerCluster,
     },
+
     data() {
         return {
+            value2: [0, 50],
+            options: {
+                dotSize: 14,
+                width: 'auto',
+                height: 4,
+                contained: false,
+                direction: 'ltr',
+                data: null,
+                dataLabel: 'label',
+                dataValue: 'value',
+                min: 0,
+                max: 100,
+                interval: 1,
+                disabled: false,
+                clickable: true,
+                duration: 0.5,
+                adsorb: false,
+                lazy: false,
+                tooltip: 'active',
+                tooltipPlacement: 'top',
+                tooltipFormatter: void 0,
+                useKeyboard: false,
+                keydownHook: null,
+                dragOnClick: false,
+                enableCross: true,
+                fixed: false,
+                minRange: void 0,
+                maxRange: void 0,
+                order: true,
+                marks: false,
+                dotOptions: void 0,
+                dotAttrs: void 0,
+                process: true,
+                dotStyle: void 0,
+                railStyle: void 0,
+                processStyle: void 0,
+                tooltipStyle: void 0,
+                stepStyle: void 0,
+                stepActiveStyle: void 0,
+                labelStyle: void 0,
+                labelActiveStyle: void 0,
+            },
             tileLayers: [
                 {
                     name: 'Схема',
@@ -961,6 +997,11 @@ export default {
             toast.show()
         },
 
+        showCollapse(id) {
+            var myCollapse = document.getElementById(id)
+            const bsCollapse = new bootstrap.Collapse(myCollapse)
+            bsCollapse.show()
+        },
         hideCollapse(id) {
             var myCollapse = document.getElementById(id)
             const bsCollapse = new bootstrap.Collapse(myCollapse)

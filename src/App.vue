@@ -221,80 +221,89 @@
         </div>
 
         <l-map
-            style="height: 100%; width: 100%"
+            ref="map"
             :zoom="zoom"
             :center="center"
+            :noBlockingAnimations="true"
+            @click="handleMapClick"
             @update:zoom="zoomUpdated"
             @update:center="centerUpdated"
-            @click="handleMapClick"
-            :noBlockingAnimations="true"
-            :options="{ zoomControl: false }"
+            @ready="onLeafletReady"
         >
-            <l-tile-layer
-                v-if="activeTileLayer"
-                :url="activeTileLayer.url"
-                :subdomains="activeTileLayer.subdomains"
-            ></l-tile-layer>
-            <l-control-zoom position="topright"></l-control-zoom>
+            <template v-if="leafletReady">
+                <l-tile-layer
+                    :max-zoom="18"
+                    v-if="activeTileLayer"
+                    :url="activeTileLayer.url"
+                    :subdomains="activeTileLayer.subdomains"
+                ></l-tile-layer>
+                <l-control-zoom position="topright"></l-control-zoom>
 
-            <v-marker-cluster>
-                <div v-for="item in findObjects" :key="item.id">
-                    <div v-if="Array.isArray(item.coords[0])">
-                        <l-polygon
-                            :lat-lngs="poligonReqFormat(item['coords'])"
-                            :fillOpacity="0.2"
-                            :weight="3"
-                            color="#29d321"
-                            fillColor="#29d321"
-                            :visible="item == activeObject ? true : false"
-                        >
-                            <l-popup :content="item['title']" />
-                        </l-polygon>
-                        <l-marker :lat-lng="polygonCenter(item['coords'])" @click="showObjectInfo(item)">
-                            <l-icon :icon-size="iconSize" class-name="icon-base">
-                                <img
-                                    :src="
-                                        item['category']['img']
-                                            ? 'https://invest-buryatia.ru' + item['category']['img']
-                                            : getIcon(item['category']['type'])
-                                    "
-                                />
-                            </l-icon>
-                        </l-marker>
+                <marker-cluster>
+                    <div v-if="true">
+                        <div v-for="item in findObjects" :key="item.id">
+                            <div v-if="Array.isArray(item.coords[0])">
+                                <l-polygon
+                                    :lat-lngs="poligonReqFormat(item['coords'])"
+                                    :fillOpacity="0.2"
+                                    :weight="3"
+                                    color="#29d321"
+                                    fillColor="#29d321"
+                                    :visible="item == activeObject ? true : false"
+                                >
+                                    <l-popup>
+                                        {{ item['title'] }}
+                                    </l-popup>
+                                </l-polygon>
+                                <l-marker :lat-lng="polygonCenter(item['coords'])" @click="showObjectInfo(item)">
+                                    <l-icon :icon-size="iconSize" class-name="icon-base">
+                                        <img
+                                            :src="
+                                                item['category']['img']
+                                                    ? 'https://invest-buryatia.ru' + item['category']['img']
+                                                    : getIcon(item['category']['type'])
+                                            "
+                                        />
+                                    </l-icon>
+                                </l-marker>
+                            </div>
+                            <div v-else>
+                                <l-marker
+                                    v-if="item['coords'].length == 2"
+                                    :lat-lng="item['coords']"
+                                    @click="showObjectInfo(item)"
+                                >
+                                    <l-icon :icon-size="iconSize" class-name="icon-base">
+                                        <img
+                                            :src="
+                                                item['category']['img']
+                                                    ? 'https://invest-buryatia.ru/' + item['category']['img']
+                                                    : getIcon(item['category']['type'])
+                                            "
+                                        />
+                                    </l-icon>
+                                </l-marker>
+                            </div>
+                        </div>
                     </div>
-                    <div v-else>
-                        <l-marker
-                            v-if="item['coords'].length == 2"
-                            :lat-lng="item['coords']"
-                            @click="showObjectInfo(item)"
-                        >
-                            <l-icon :icon-size="iconSize" class-name="icon-base">
-                                <img
-                                    :src="
-                                        item['category']['img']
-                                            ? 'https://invest-buryatia.ru/' + item['category']['img']
-                                            : getIcon(item['category']['type'])
-                                    "
-                                />
-                            </l-icon>
-                        </l-marker>
-                    </div>
+                </marker-cluster>
+
+                <div v-if="showDistricts">
+                    <l-polygon
+                        v-for="item in allDistricts"
+                        :key="item.id"
+                        :lat-lngs="item['geometry']['coordinates']"
+                        :fillOpacity="0"
+                        @click="focusedDistrict = item.id"
+                        :weight="item.id == focusedDistrict ? 3 : 1"
+                        :fill="true"
+                    >
+                        <l-popup>
+                            {{ item.name }}
+                        </l-popup>
+                    </l-polygon>
                 </div>
-            </v-marker-cluster>
-
-            <!-- Полигоны районов -->
-            <div v-if="showDistricts">
-                <l-polygon
-                    v-for="item in allDistricts"
-                    :key="item.id"
-                    :lat-lngs="item['geometry']['coordinates']"
-                    :fillOpacity="0"
-                    @click="focusedDistrict = item.id"
-                    :weight="item.id == focusedDistrict ? 3 : 1"
-                >
-                    <l-popup :content="item.name" />
-                </l-polygon>
-            </div>
+            </template>
         </l-map>
 
         <div class="panels">
@@ -424,7 +433,9 @@
                                 <div @click="showCollapse('accordion-' + item.id)" class="accordion-btn">
                                     <label class="checkbox-btn" v-on:click.stop>
                                         <input type="checkbox" :value="item.id" v-model="checkedCategoriesGroups" />
-                                        <div class="checkbox-btn__cont"></div>
+                                        <div class="checkbox-btn__cont">
+                                            <i class="fa fa-map-o" aria-hidden="true"></i>
+                                        </div>
                                     </label>
                                     {{ item.name }}
                                     <div class="accordion-btn__count">{{ countOfCategoryGroup(item.id) }}</div>
@@ -776,7 +787,7 @@
                         <div class="card-data-block__text" v-html="activeObject['dopInfo']"></div>
                     </div>
 
-                    <div v-html-js="{ html: b24form }"></div>
+                    <!-- <div v-html-js="{ html: b24form }"></div> -->
 
                     <div @click="showModal('modal-1')" class="object-card__btn">
                         <span> Показать полную информацию </span>
@@ -830,18 +841,17 @@
 </template>
 
 <script>
+import MarkerCluster from './components/MarkerCluster.vue'
 import Slider from '@vueform/slider'
 import '@vueform/slider/themes/default.css'
+
 import './assets/styles/index.scss'
 import _ from 'lodash'
 import { mapGetters, mapActions } from 'vuex'
 import { Fancybox } from '@fancyapps/ui/src/Fancybox/Fancybox.js'
 import vSelect from './components/v-select'
 import bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js'
-
-// На замену
-import { LMap, LTileLayer, LMarker, LIcon, LPolygon, LPopup, LControlZoom } from 'vue2-leaflet'
-import Vue2LeafletMarkerCluster from 'vue2-leaflet-markercluster'
+import { LMap, LTileLayer, LControlZoom, LMarker, LIcon, LPolygon, LPopup } from '@vue-leaflet/vue-leaflet'
 
 export default {
     name: 'App',
@@ -850,63 +860,25 @@ export default {
         vSelect,
         LMap,
         LTileLayer,
+        LControlZoom,
         LMarker,
         LIcon,
         LPolygon,
         LPopup,
-        LControlZoom,
-        VMarkerCluster: Vue2LeafletMarkerCluster,
+        MarkerCluster,
     },
 
     data() {
         return {
-            value2: [0, 50],
-            options: {
-                dotSize: 14,
-                width: 'auto',
-                height: 4,
-                contained: false,
-                direction: 'ltr',
-                data: null,
-                dataLabel: 'label',
-                dataValue: 'value',
-                min: 0,
-                max: 100,
-                interval: 1,
-                disabled: false,
-                clickable: true,
-                duration: 0.5,
-                adsorb: false,
-                lazy: false,
-                tooltip: 'active',
-                tooltipPlacement: 'top',
-                tooltipFormatter: void 0,
-                useKeyboard: false,
-                keydownHook: null,
-                dragOnClick: false,
-                enableCross: true,
-                fixed: false,
-                minRange: void 0,
-                maxRange: void 0,
-                order: true,
-                marks: false,
-                dotOptions: void 0,
-                dotAttrs: void 0,
-                process: true,
-                dotStyle: void 0,
-                railStyle: void 0,
-                processStyle: void 0,
-                tooltipStyle: void 0,
-                stepStyle: void 0,
-                stepActiveStyle: void 0,
-                labelStyle: void 0,
-                labelActiveStyle: void 0,
-            },
+            leafletReady: false,
+            leafletObject: null,
+
             tileLayers: [
                 {
                     name: 'Схема',
                     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c'],
+                    // subdomains: ['a', 'b', 'c'],
+                    subdomains: 'abc',
                 },
                 // {
                 //     name: 'Схема',
@@ -924,6 +896,7 @@ export default {
                     subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
                 },
             ],
+
             activeTileLayer: null,
             zoom: 6,
             showDistricts: true,
@@ -931,7 +904,7 @@ export default {
             center: [],
             centerBuryatia: [53.328248, 108.837283],
             bounds: null,
-            iconSize: [40, 40],
+            iconSize: [30, 30],
             iconsMarker: {
                 default: require('./assets/icons/land.png'),
                 CATEGORY_76: require('./assets/icons/land.png'),
@@ -969,6 +942,7 @@ export default {
             checkedCategoriesGroups: [],
         }
     },
+
     methods: {
         ...mapActions([
             'fetchDistricts',
@@ -977,6 +951,12 @@ export default {
             'fetchCategoryGroup',
             'fetchObjects',
         ]),
+
+        async onLeafletReady() {
+            await this.$nextTick()
+            this.leafletObject = this.$refs.map.leafletObject
+            this.leafletReady = true
+        },
 
         showModal(id) {
             const myModal = new bootstrap.Modal(document.getElementById(id))
@@ -1034,15 +1014,6 @@ export default {
 
         showBuryatia() {
             this.zoom = 6
-            // if (this.activeObject && !this.showFilterPanel) {
-            //     this.center = [53.328248, 108.837283 - 6]
-            //     return
-            // }
-            // if (this.activeObject && this.showFilterPanel) {
-            //     this.center = [53.328248, 108.837283 - 8]
-            //     this.zoom = 6
-            //     return
-            // }
             this.center = [53.328248, 108.837283]
         },
 
@@ -1231,7 +1202,6 @@ export default {
         },
 
         resetFilterChildCategories() {
-            console.log('this.checkedChildCategories', this.checkedChildCategories)
             this.checkedChildCategories = [undefined]
         },
     },
@@ -1309,6 +1279,16 @@ export default {
     },
 
     async mounted() {
+        const _this = this
+        var myCollapsible = document.getElementById('search-panel-body')
+        myCollapsible.addEventListener('shown.bs.collapse', function () {
+            _this.searchPanelBody = true
+        })
+
+        myCollapsible.addEventListener('hidden.bs.collapse', function () {
+            _this.searchPanelBody = false
+        })
+
         await this.fetchDistricts()
         await this.fetchLandCategories()
         await this.fetchTypeOfOwnership()

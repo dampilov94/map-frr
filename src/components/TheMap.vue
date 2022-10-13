@@ -1,90 +1,92 @@
 <template>
-    <l-map
-        ref="map"
-        :zoom="zoom"
-        :center="center"
-        :noBlockingAnimations="true"
-        :options="{ zoomControl: false }"
-        @click="handleMapClick"
-        @update:zoom="zoomUpdated"
-        @update:center="centerUpdated"
-        @ready="onLeafletReady"
-    >
-        <template v-if="leafletReady">
-            <l-tile-layer
-                :max-zoom="18"
-                v-if="activeLayer"
-                :url="activeLayer.url"
-                :subdomains="activeLayer.subdomains"
-            ></l-tile-layer>
-            <l-control-zoom position="topright"></l-control-zoom>
+    <div id="map">
+        <l-map
+            ref="map"
+            :zoom="zoom"
+            :center="center"
+            :noBlockingAnimations="true"
+            :options="{ zoomControl: false }"
+            @click="handleMapClick"
+            @update:zoom="zoomUpdated"
+            @update:center="centerUpdated"
+            @ready="onLeafletReady"
+        >
+            <template v-if="leafletReady">
+                <l-tile-layer
+                    :max-zoom="18"
+                    v-if="activeLayer"
+                    :url="activeLayer.url"
+                    :subdomains="activeLayer.subdomains"
+                ></l-tile-layer>
+                <l-control-zoom position="topright"></l-control-zoom>
 
-            <marker-cluster>
-                <div v-if="true">
-                    <div v-for="item in markers" :key="item.id">
-                        <div v-if="Array.isArray(item.coords[0])">
-                            <l-polygon
-                                :lat-lngs="poligonReqFormat(item['coords'])"
-                                :fillOpacity="0.2"
-                                :weight="3"
-                                color="#29d321"
-                                fillColor="#29d321"
-                                :visible="item == activeObject ? true : false"
-                            >
-                                <l-popup>
-                                    {{ item['title'] }}
-                                </l-popup>
-                            </l-polygon>
-                            <l-marker :lat-lng="polygonCenter(item['coords'])" @click="showObjectInfo(item)">
-                                <l-icon :icon-size="iconSize" class-name="icon-base">
-                                    <img
-                                        :src="
-                                            item['category']['img']
-                                                ? 'https://invest-buryatia.ru' + item['category']['img']
-                                                : getIcon(item['category']['type'])
-                                        "
-                                    />
-                                </l-icon>
-                            </l-marker>
-                        </div>
-                        <div v-else>
-                            <l-marker
-                                v-if="item['coords'].length == 2"
-                                :lat-lng="item['coords']"
-                                @click="showObjectInfo(item)"
-                            >
-                                <l-icon :icon-size="iconSize" class-name="icon-base">
-                                    <img
-                                        :src="
-                                            item['category']['img']
-                                                ? 'https://invest-buryatia.ru/' + item['category']['img']
-                                                : getIcon(item['category']['type'])
-                                        "
-                                    />
-                                </l-icon>
-                            </l-marker>
+                <marker-cluster>
+                    <div v-if="true">
+                        <div v-for="item in markers" :key="item.id">
+                            <div v-if="Array.isArray(item.coords[0])">
+                                <l-polygon
+                                    :lat-lngs="poligonReqFormat(item['coords'])"
+                                    :fillOpacity="0.2"
+                                    :weight="3"
+                                    color="#29d321"
+                                    fillColor="#29d321"
+                                    :visible="item == activeObject ? true : false"
+                                >
+                                    <l-popup>
+                                        {{ item['title'] }}
+                                    </l-popup>
+                                </l-polygon>
+                                <l-marker :lat-lng="polygonCenter(item['coords'])" @click="$emit('selectObject', item)">
+                                    <l-icon :icon-size="iconSize" class-name="icon-base">
+                                        <img
+                                            :src="
+                                                item['category']['img']
+                                                    ? 'https://invest-buryatia.ru' + item['category']['img']
+                                                    : getIcon(item['category']['type'])
+                                            "
+                                        />
+                                    </l-icon>
+                                </l-marker>
+                            </div>
+                            <div v-else>
+                                <l-marker
+                                    v-if="item['coords'].length == 2"
+                                    :lat-lng="item['coords']"
+                                    @click="$emit('selectObject', item)"
+                                >
+                                    <l-icon :icon-size="iconSize" class-name="icon-base">
+                                        <img
+                                            :src="
+                                                item['category']['img']
+                                                    ? 'https://invest-buryatia.ru/' + item['category']['img']
+                                                    : getIcon(item['category']['type'])
+                                            "
+                                        />
+                                    </l-icon>
+                                </l-marker>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </marker-cluster>
+                </marker-cluster>
 
-            <div v-if="showDistricts">
-                <l-polygon
-                    v-for="item in allDistricts"
-                    :key="item.id"
-                    :lat-lngs="item['geometry']['coordinates']"
-                    :fillOpacity="0"
-                    @click="focusedDistrict = item.id"
-                    :weight="item.id == focusedDistrict ? 3 : 1"
-                    :fill="true"
-                >
-                    <l-popup>
-                        {{ item.name }}
-                    </l-popup>
-                </l-polygon>
-            </div>
-        </template>
-    </l-map>
+                <div v-if="showDistricts">
+                    <l-polygon
+                        v-for="item in districts"
+                        :key="item.id"
+                        :lat-lngs="item['geometry']['coordinates']"
+                        :fillOpacity="0"
+                        @click="focusedDistrict = item.id"
+                        :weight="item.id == focusedDistrict ? 3 : 1"
+                        :fill="true"
+                    >
+                        <l-popup>
+                            {{ item.name }}
+                        </l-popup>
+                    </l-polygon>
+                </div>
+            </template>
+        </l-map>
+    </div>
 </template>
 
 <script>
@@ -93,10 +95,9 @@ import MarkerCluster from './MarkerCluster.vue'
 import { mapGetters } from 'vuex'
 
 export default {
-    emits: ['update:zoom', 'update:center'],
+    emits: ['update:zoom', 'update:center', 'selectObject'],
     props: {
-        activeLayer: Object,
-        layers: Array,
+        districts: Array,
         zoom: Number,
         center: [Array, Object],
         markers: Array,
@@ -130,7 +131,7 @@ export default {
     },
 
     computed: {
-        ...mapGetters(['allDistricts']),
+        ...mapGetters(['activeLayer']),
     },
 
     methods: {
@@ -142,6 +143,48 @@ export default {
             this.$emit('update:center', center)
         },
 
+        poligonReqFormat(polygon) {
+            let reqFormat = []
+            polygon[0].forEach((element) => {
+                reqFormat.push([element['latitude'], element['longitude']])
+            })
+
+            return reqFormat
+        },
+
+        polygonCenter(polygon) {
+            let reqFormat = this.poligonReqFormat(polygon)
+            let polygonLength = reqFormat.length
+            let polygonPoints = reqFormat || []
+
+            let x = 0,
+                y = 0,
+                area = 0,
+                i,
+                j,
+                f,
+                point1,
+                point2
+
+            for (i = 0, j = polygonLength - 1; i < polygonLength; j = i, i += 1) {
+                point1 = polygonPoints[i]
+                point2 = polygonPoints[j]
+                f = point1[0] * point2[1] - point2[0] * point1[1]
+
+                x += (point1[0] + point2[0]) * f
+                y += (point1[1] + point2[1]) * f
+
+                area += point1[0] * point2[1]
+                area -= point1[1] * point2[0]
+            }
+
+            area /= 2
+
+            f = area * 6
+
+            return [x / f, y / f]
+        },
+
         async onLeafletReady() {
             await this.$nextTick()
             this.leafletObject = this.$refs.map.leafletObject
@@ -150,6 +193,7 @@ export default {
         handleMapClick() {
             this.focusedDistrict = null
         },
+
         getIcon(category_type) {
             if (!this.iconsMarker[category_type]) {
                 return this.iconsMarker['default']
@@ -169,3 +213,16 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+#map {
+    width: 100%;
+    height: 100vh;
+}
+.icon-base {
+    img {
+        width: 100% !important;
+        height: auto;
+    }
+}
+</style>

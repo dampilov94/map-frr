@@ -5,7 +5,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <slot name="header" />
-                    <div class="custom-modal__header-btn" @click="closeModal()">
+                    <div class="custom-modal__header-btn" @click="closeModal">
                         <i class="fa fa-times" aria-hidden="true"></i>
                     </div>
                 </div>
@@ -90,3 +90,23 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+.custom-modal {
+    &__header-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 24px;
+        line-height: 30px;
+        text-align: center;
+        cursor: pointer;
+        margin-left: 15px;
+    }
+
+    &__title {
+        flex-grow: 1;
+        font-size: 24px;
+        line-height: 30px;
+    }
+}
+</style>

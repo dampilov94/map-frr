@@ -1,7 +1,7 @@
 export default {
     actions: {
         async fetchLandCategories(ctx) {
-            // const res = await fetch('./available-land-categories.json')
+            // const res = await fetch('./example_available-land-categories.json')
             const res = await fetch('https://invest-buryatia.ru/map/available-land-categories.php')
             const land_categories = await res.json()
 

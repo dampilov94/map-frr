@@ -16,7 +16,7 @@
                     </button>
                 </div>
             </div>
-            <div class="form-group d-none d-lg-block">
+            <div class="mb-3 d-none d-lg-block">
                 <input
                     type="search"
                     class="form-control custom-input"
@@ -24,7 +24,7 @@
                     placeholder="Поиск объектов"
                 />
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <v-select
                     :options="formatingToOptions(districts, 'name', 'id')"
                     @select="selectedDistrict = $event"
@@ -72,7 +72,7 @@
                         data-bs-parent="#filter-accordion"
                     >
                         <div class="py-3" v-if="item.type == 'filter'">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <v-select
                                     :options="formatingToOptions(allLandCategories, 'title', 'id')"
                                     @select="selectedLandCategories = $event"
@@ -80,7 +80,7 @@
                                     :nullOption="{ name: 'Категория земель', value: null }"
                                 />
                             </div>
-                            <!-- <div class="form-group">
+                            <!-- <div class="mb-3">
                                             <label>Тип</label>
                                             <div class="radio-bts">
                                                 <div class="radio-bts__item">
@@ -103,7 +103,7 @@
                                                 </div>
                                             </div>
                                         </div> -->
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>Общая площадь(га)</label>
                                 <div class="filter-slider">
                                     <Slider
@@ -114,7 +114,7 @@
                                     />
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <v-select
                                     :options="formatingToOptions(allTypeOfOwnership, 'title', 'id')"
                                     @select="selectedTypeOfOwnership = $event"
@@ -122,7 +122,7 @@
                                     :nullOption="{ name: 'Форма собственности', value: null }"
                                 />
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>До Улан-Удэ (км)</label>
                                 <div class="filter-slider">
                                     <Slider
@@ -133,7 +133,7 @@
                                     />
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label class="category-checkbox" v-for="ch in item.child" :key="ch.id">
                                     <input type="checkbox" :value="ch.id" v-model="checkedChildCategories" />
                                     <div class="category-checkbox__btn">
@@ -442,3 +442,361 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+.filter-panel {
+    color: #000;
+    height: 100vh;
+    width: 360px;
+    filter: drop-shadow(7px 0px 11px rgba(5, 7, 64, 0.15));
+    background: url(@/assets/img/filter-bg-1.png) bottom left / contain no-repeat,
+        url(@/assets/img/filter-bg-2.png) bottom right / 196px no-repeat;
+    background-color: #fff;
+
+    @media (max-width: 991.98px) {
+        width: 100%;
+        position: fixed;
+    }
+
+    &__header {
+        padding: 24px 20px 0px;
+    }
+
+    &__btn {
+        height: 40px;
+        padding: 0 14px;
+        border-radius: 40px;
+        background: #292e91;
+        color: #fff;
+        cursor: pointer;
+        border: none;
+    }
+
+    &__logo {
+        display: inline-block;
+        width: 255px;
+        margin-right: 10px;
+    }
+
+    &__close {
+        width: 31px;
+        height: 63px;
+        background: rgba(41, 46, 145, 0.1);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &__close img {
+        width: 24px;
+    }
+
+    &__body {
+        margin: 0;
+        padding: 0px 20px;
+        width: 100%;
+        height: calc(100vh - 275px);
+        overflow: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+
+        &.search-body {
+            height: calc(100vh - 320px);
+        }
+    }
+}
+
+.search-panel {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    width: 100vw;
+    background-color: #fff;
+    @media (min-width: 992px) {
+        display: none;
+    }
+
+    &__close {
+        position: absolute;
+        right: 20px;
+        top: 45px;
+        transform: translate(0, -50%);
+        font-size: 35px;
+    }
+
+    &__input {
+        width: calc(100% - 50px);
+    }
+
+    &__header {
+        padding: 20px;
+    }
+
+    &__body {
+        max-height: calc(100vh - 134px);
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    &__nav {
+        padding-top: 20px;
+        position: relative;
+
+        &-btn {
+            position: absolute;
+            right: 0px;
+            top: 20px;
+            color: inherit;
+            text-decoration: none;
+
+            &:hover {
+                color: inherit;
+                text-decoration: none;
+            }
+        }
+    }
+}
+
+.filter-accordion {
+    width: 100%;
+    overflow-y: visible;
+}
+
+.filter-slider {
+    padding: 0px 15px;
+    margin-top: 10px;
+    margin-bottom: 50px;
+}
+
+.accordion-btn {
+    display: block;
+    cursor: pointer;
+    position: relative;
+    width: 100%;
+    height: 60px;
+    background-color: #292e91;
+    color: #fff;
+    padding-top: 10px;
+    padding-left: 55px;
+    padding-right: 35px;
+    font-size: 15px;
+    line-height: 36px;
+
+    &__count {
+        display: block;
+        position: absolute;
+        font-weight: bold;
+        top: 50%;
+        text-align: right;
+        right: 8px;
+        transform: translate(0, -50%);
+    }
+}
+
+.checkbox-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    user-select: none;
+    margin: 0;
+
+    input[type='checkbox'] {
+        z-index: -1;
+        opacity: 0;
+        display: block;
+        width: 0;
+        height: 0;
+    }
+
+    &__cont {
+        background-color: #fff;
+        display: block;
+        width: 36px;
+        height: 36px;
+        border-radius: 36px;
+        transition: background 0.2s ease;
+        font-size: 18px;
+        line-height: 36px;
+        text-align: center;
+        color: rgb(113, 113, 113);
+        cursor: pointer;
+    }
+
+    input[type='checkbox']:checked + &__cont {
+        color: #fff;
+        background: linear-gradient(95.48deg, #f7ce38 -7.1%, #fc210d 97.71%);
+    }
+}
+
+.category-checkbox {
+    position: relative;
+    user-select: none;
+    display: flex;
+    cursor: pointer;
+    margin-bottom: 10px;
+    min-height: 36px;
+    padding-right: 36px;
+    align-items: center;
+    justify-content: flex-start;
+
+    input[type='checkbox'] {
+        z-index: -1;
+        opacity: 0;
+        display: block;
+        width: 0;
+        height: 0;
+    }
+
+    &__btn {
+        background-color: #ddd;
+        display: block;
+        width: 36px;
+        height: 36px;
+        border-radius: 36px;
+        transition: background 0.2s ease;
+        margin-right: 10px;
+        flex-shrink: 0;
+        filter: grayscale(100%);
+        opacity: 0.5;
+
+        img {
+            width: 100%;
+        }
+    }
+
+    &__text {
+        display: inline-block;
+        vertical-align: middle;
+        flex-grow: 1;
+    }
+
+    &__count {
+        display: block;
+        position: absolute;
+        font-weight: bold;
+        text-align: right;
+        right: 10px;
+        top: 50%;
+        transform: translate(0, -50%);
+    }
+
+    /* Checked */
+    input[type='checkbox']:checked + &__btn {
+        filter: grayscale(0);
+        opacity: 1;
+    }
+}
+
+.search-results {
+    &__text {
+        margin: 0px 20px 20px;
+    }
+}
+
+.search-result {
+    border-bottom: 2px solid #292e91;
+    cursor: pointer;
+    padding: 20px;
+
+    &.active {
+        background-color: #292e91;
+    }
+    &:last-child {
+        border-bottom: 0;
+    }
+    &__category {
+        margin-bottom: 6px;
+        font-weight: 600;
+        font-size: 1rem;
+        color: #292e91;
+        text-transform: uppercase;
+
+        .active & {
+            color: #fff;
+        }
+    }
+    &__title {
+        color: #292e91;
+        font-size: 16px;
+        margin-bottom: 6px;
+        opacity: 0.8;
+        .active & {
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 6px;
+        }
+    }
+
+    &__text {
+        font-size: 14px;
+        color: #292e91;
+        margin-bottom: 20px;
+        padding: 0 20px;
+    }
+
+    &__address {
+        opacity: 0.5;
+        font-size: 13px;
+        color: #292e91;
+
+        .active & {
+            color: #000;
+        }
+    }
+}
+
+.radio-bts {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+    padding: 1px;
+    background: linear-gradient(302.38deg, #292ec4 -32.56%, #4ca9df 92.35%);
+
+    &__item {
+        flex-basis: 0;
+        flex-grow: 1;
+        text-align: center;
+        input[type='radio'] {
+            display: none;
+        }
+        label {
+            background-color: #f5f5fa;
+            font-weight: 600;
+            color: #292e91;
+            display: block;
+            cursor: pointer;
+            padding: 15px 10px;
+            border-right: none;
+            user-select: none;
+            font-size: 16px;
+            line-height: 18px;
+            margin: 0;
+            border-right: 1px solid #4ca9df;
+        }
+
+        &:first-child label {
+            border-radius: 1px 0 0 1px;
+            border-left: none;
+        }
+
+        &:last-child label {
+            border-radius: 0 1px 1px 0;
+            border-right: none;
+        }
+
+        input[type='radio']:checked + label {
+            background: #292e91;
+            color: #fff;
+        }
+    }
+}
+
+.free-category-item {
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+</style>

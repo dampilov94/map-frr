@@ -15,8 +15,8 @@
     </div>
 
     <div class="nav-mobile" v-show="!showFilterPanel && !showSearchPanel">
-        <nav class="navbar navbar-light bg-light navbar-expand">
-            <div class="navbar-nav w-100 justify-content-between">
+        <nav class="navbar bg-light navbar-expand">
+            <div class="navbar-nav w-100 nav-justified">
                 <li class="nav-item">
                     <a class="nav-link" @click.prevent="$emit('update:showFilterPanel', true)">
                         <i class="fa fa-sliders" aria-hidden="true"></i>
@@ -72,3 +72,85 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+.navbar {
+    .nav-link {
+        color: #292e91;
+    }
+}
+
+.nav-desktop {
+    margin: 0;
+    height: 100vh;
+    width: 65px;
+    background-color: #fff;
+    padding: 24px 5px 12px;
+    color: #292e91;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    @media (max-width: 991.98px) {
+        display: none;
+    }
+
+    &__logo {
+        max-width: 45px;
+        margin-bottom: 28px;
+    }
+
+    &__item {
+        margin-bottom: 20px;
+        cursor: pointer;
+    }
+
+    &__toggler {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: auto;
+        width: 40px;
+        height: 40px;
+        color: #292e91;
+        background: rgba(41, 46, 145, 0.1);
+        cursor: pointer;
+    }
+}
+
+.nav-mobile {
+    position: fixed;
+    bottom: 0;
+    width: 100vw;
+
+    @media (min-width: 992px) {
+        display: none;
+    }
+
+    .dropdown-toggle::after {
+        content: none;
+    }
+}
+
+.dropdown-menu {
+    border-radius: 0px;
+    padding: 0;
+
+    .dropdown-item {
+        padding: 10px 16px;
+        color: #292e91;
+    }
+
+    li {
+        border-bottom: 1px solid #eff7fd;
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+}
+
+.dropup .dropdown-menu {
+    bottom: calc(100% + 8px) !important;
+}
+</style>

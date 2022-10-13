@@ -1,125 +1,95 @@
 <template>
-    <div id="invest-map">
-        <the-topbar
-            @mapToBuryatia="showBuryatia"
-            :layers="tileLayers"
-            @shareModal="shareModal = true"
-            v-model:activeLayer="activeTileLayer"
-            v-model:districts="showDistricts"
-        />
-        <teleport to="body">
-            <app-modal v-model:open="shareModal" scrollable centered size="lg">
-                <template #header>
-                    <h5 class="custom-modal__title">Поделиться картой</h5>
-                </template>
-                <template #default="{ close }">
-                    <div class="modal-share">
-                        <div class="modal-share__field">
-                            {{ shareLink }}
-                        </div>
-                        <div class="modal-share__btn" @click="copyShareLink(), close()">
-                            Скопировать ссылку <i class="fa fa-clone" aria-hidden="true"></i>
-                        </div>
+    <the-topbar @mapToBuryatia="showBuryatia" @shareModal="shareModal = true" v-model:districts="showDistricts" />
+    <teleport to="body">
+        <app-message />
+        <app-modal v-model:open="shareModal" scrollable centered size="lg">
+            <template #header>
+                <h5 class="custom-modal__title">Поделиться картой</h5>
+            </template>
+            <template #default="{ close }">
+                <div class="modal-share">
+                    <div class="modal-share__field">
+                        {{ shareLink }}
                     </div>
-                </template>
-            </app-modal>
-            <app-modal v-model:open="selectMapModal" centered>
-                <template #header>
-                    <h5 class="custom-modal__title">Выбрать карту</h5>
-                </template>
-                <template #default>
-                    <ul class="select-map">
-                        <li
-                            class="select-map-item"
-                            @click="activeTileLayer = item"
-                            v-for="(item, index) in tileLayers"
-                            :key="index"
-                            v-bind:class="[activeTileLayer == item ? 'active' : '']"
-                        >
-                            {{ item.name }}
-                        </li>
-                        <li
-                            class="select-map-item"
-                            v-bind:class="{ active: showDistricts }"
-                            @click="showDistricts = !showDistricts"
-                        >
-                            Районы
-                        </li>
-                    </ul>
-                </template>
-            </app-modal>
-        </teleport>
+                    <div class="modal-share__btn" @click="copyShareLink(), close()">
+                        Скопировать ссылку <i class="fa fa-clone" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </template>
+        </app-modal>
+        <app-modal v-model:open="selectMapModal" centered>
+            <template #header>
+                <h5 class="custom-modal__title">Выбрать карту</h5>
+            </template>
+            <template #default>
+                <ul class="select-map">
+                    <li
+                        class="select-map-item"
+                        @click="setActiveLayer(item)"
+                        v-for="item in tileLayers"
+                        :key="item"
+                        v-bind:class="[activeLayer.name == item.name ? 'active' : '']"
+                    >
+                        {{ item.name }}
+                    </li>
+                    <li
+                        class="select-map-item"
+                        v-bind:class="{ active: showDistricts }"
+                        @click="showDistricts = !showDistricts"
+                    >
+                        Районы
+                    </li>
+                </ul>
+            </template>
+        </app-modal>
+    </teleport>
 
-        <div class="position-fixed top-0 end-0 p-3" style="z-index: 999999">
-            <div
-                id="liveToast"
-                class="toast align-items-center text-white bg-success border-0"
-                role="alert"
-                aria-live="assertive"
-                aria-atomic="true"
-            >
-                <div class="d-flex">
-                    <div class="toast-body">Ссылка скопирована.</div>
-                    <button
-                        type="button"
-                        class="btn-close btn-close-white me-2 m-auto"
-                        data-bs-dismiss="toast"
-                        aria-label="Close"
-                    ></button>
+    <div class="row g-0 h-100">
+        <div class="col-auto">
+            <div class="panels">
+                <div class="panels__item">
+                    <the-navbar
+                        v-model:showFilterPanel="showFilterPanel"
+                        v-model:showSearchPanel="showSearchPanel"
+                        @mapToBuryatia="showBuryatia"
+                        @shareModal="shareModal = true"
+                        @selectMapModal="selectMapModal = true"
+                    />
+                </div>
+                <div class="panels__item">
+                    <filter-panel
+                        v-model:showFilterPanel="showFilterPanel"
+                        v-model:showSearchPanel="showSearchPanel"
+                        v-model:activeObject="activeObject"
+                        v-model:filteredObjects="filteredObjects"
+                        :districts="allDistricts"
+                        :allObjects="allObjects"
+                        @selectObject="showObjectInfo"
+                    />
+                </div>
+                <div class="panels__item">
+                    <object-details v-model:activeObject="activeObject" />
                 </div>
             </div>
         </div>
-
-        <div class="row g-0 h-100">
-            <div class="col-auto">
-                <div class="panels">
-                    <div class="panels__item">
-                        <the-navbar
-                            v-model:showFilterPanel="showFilterPanel"
-                            v-model:showSearchPanel="showSearchPanel"
-                            @mapToBuryatia="showBuryatia"
-                            @shareModal="shareModal = true"
-                            @selectMapModal="selectMapModal = true"
-                        />
-                    </div>
-                    <div class="panels__item">
-                        <filter-panel
-                            v-model:showFilterPanel="showFilterPanel"
-                            v-model:showSearchPanel="showSearchPanel"
-                            v-model:activeObject="activeObject"
-                            v-model:filteredObjects="filteredObjects"
-                            :districts="allDistricts"
-                            :allObjects="allObjects"
-                            @selectObject="showObjectInfo"
-                        />
-                    </div>
-                    <div class="panels__item">
-                        <object-details v-model:activeObject="activeObject" />
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <the-map
-                    :markers="filteredObjects"
-                    :showDistricts="showDistricts"
-                    :activeLayer="activeTileLayer"
-                    v-model:zoom="zoom"
-                    v-model:center="center"
-                />
-            </div>
+        <div class="col">
+            <the-map
+                :markers="filteredObjects"
+                :districts="allDistricts"
+                :showDistricts="showDistricts"
+                v-model:zoom="zoom"
+                v-model:center="center"
+                @selectObject="showObjectInfo"
+            />
         </div>
     </div>
 </template>
 
 <script>
-// [] Вынести компоненты
-// [] Переписать код
-
 import { mapGetters, mapActions } from 'vuex'
 
-import bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js'
-
 import AppModal from './components/ui/AppModal'
+import AppMessage from './components/ui/AppMessage'
 import TheTopbar from './components/TheTopbar'
 import TheNavbar from './components/TheNavbar'
 import TheMap from './components/TheMap'
@@ -130,6 +100,7 @@ export default {
     name: 'App',
     components: {
         AppModal,
+        AppMessage,
         TheTopbar,
         TheNavbar,
         FilterPanel,
@@ -145,7 +116,6 @@ export default {
             filteredObjects: [],
             activeObject: null,
 
-            activeTileLayer: null,
             tileLayers: [
                 {
                     name: 'Схема',
@@ -176,7 +146,7 @@ export default {
     },
 
     computed: {
-        ...mapGetters(['allDistricts', 'allObjects']),
+        ...mapGetters(['allDistricts', 'allObjects', 'layers', 'activeLayer']),
 
         shareLink() {
             if (this.activeObject) {
@@ -192,21 +162,21 @@ export default {
     },
 
     methods: {
-        ...mapActions(['fetchDistricts', 'fetchObjects']),
-
-        showToast(id) {
-            const toastLive = document.getElementById(id)
-            const toast = new bootstrap.Toast(toastLive)
-
-            toast.show()
-        },
+        ...mapActions(['setMessage', 'setActiveLayer', 'fetchDistricts', 'fetchObjects']),
 
         copyShareLink() {
             try {
                 navigator.clipboard.writeText(this.shareLink)
-                this.showToast('liveToast')
+
+                this.setMessage({
+                    text: 'Ссылка скопирована.',
+                    type: 'success',
+                })
             } catch (e) {
-                console.log('Ошибка ' + e.name + ':' + e.message + '\n' + e.stack)
+                this.setMessage({
+                    text: 'Ошибка ' + e.name + ':' + e.message,
+                    type: 'danger',
+                })
             }
         },
 
@@ -221,7 +191,8 @@ export default {
 
             setTimeout(() => {
                 if (Array.isArray(item.coords[0])) {
-                    this.center = [...this.polygonCenter(item['coords'])]
+                    // todo: polygonCenter на этой странице нет
+                    // this.center = [...this.polygonCenter(item['coords'])]
                 } else {
                     this.center = [...item['coords']]
                 }
@@ -234,48 +205,6 @@ export default {
                 return category_id == item.category.id
             })
         },
-
-        poligonReqFormat(polygon) {
-            let reqFormat = []
-            polygon[0].forEach((element) => {
-                reqFormat.push([element['latitude'], element['longitude']])
-            })
-
-            return reqFormat
-        },
-
-        polygonCenter(polygon) {
-            let reqFormat = this.poligonReqFormat(polygon)
-            let polygonLength = reqFormat.length
-            let polygonPoints = reqFormat || []
-
-            let x = 0,
-                y = 0,
-                area = 0,
-                i,
-                j,
-                f,
-                point1,
-                point2
-
-            for (i = 0, j = polygonLength - 1; i < polygonLength; j = i, i += 1) {
-                point1 = polygonPoints[i]
-                point2 = polygonPoints[j]
-                f = point1[0] * point2[1] - point2[0] * point1[1]
-
-                x += (point1[0] + point2[0]) * f
-                y += (point1[1] + point2[1]) * f
-
-                area += point1[0] * point2[1]
-                area -= point1[1] * point2[0]
-            }
-
-            area /= 2
-
-            f = area * 6
-
-            return [x / f, y / f]
-        },
     },
 
     watch: {
@@ -284,7 +213,8 @@ export default {
                 this.zoom = 11
                 setTimeout(() => {
                     if (Array.isArray(oldVal.coords[0])) {
-                        this.center = [...this.polygonCenter(oldVal['coords'])]
+                        // todo: polygonCenter на этой странице нет
+                        // this.center = [...this.polygonCenter(oldVal['coords'])]
                     } else {
                         this.center = [...oldVal['coords']]
                     }
@@ -293,10 +223,6 @@ export default {
                 }, 1)
             }
         },
-    },
-
-    created: function () {
-        this.activeTileLayer = this.tileLayers[0]
     },
 
     async mounted() {
@@ -327,3 +253,25 @@ export default {
     },
 }
 </script>
+
+<style lang="scss" scoped>
+.panels {
+    display: flex;
+    flex-wrap: wrap;
+    position: relative;
+    top: 0;
+    left: 0;
+    margin: 0;
+    z-index: 1000;
+
+    a {
+        text-decoration: none;
+    }
+
+    &__item {
+        flex: 0 0 auto;
+        width: auto;
+        max-width: 100%;
+    }
+}
+</style>

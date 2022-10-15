@@ -1,5 +1,5 @@
 <template>
-    <div class="toast-block position-fixed top-0 end-0 p-3">
+    <div class="toast-block position-fixed top-0 end-0 p-3" v-show="message">
         <div id="liveToast" class="toast align-items-center text-white border-0" role="alert">
             <div :class="'bg-' + typeMessageClass">
                 <div class="d-flex" v-if="message">

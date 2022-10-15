@@ -30,8 +30,8 @@
                         </li>
                         <li
                             class="panel-list-item"
-                            :class="{ active: districts }"
-                            @click="$emit('update:districts', !districts)"
+                            :class="{ active: showDistricts }"
+                            @click="setShowDistricts(!showDistricts)"
                         >
                             Районы
                         </li>
@@ -46,16 +46,13 @@
 import { mapGetters, mapActions } from 'vuex'
 
 export default {
-    emits: ['mapToBuryatia', 'shareModal', 'update:districts'],
-    props: {
-        districts: Boolean,
-    },
+    emits: ['mapToBuryatia', 'shareModal'],
 
     computed: {
-        ...mapGetters(['layers', 'activeLayer']),
+        ...mapGetters(['layers', 'activeLayer', 'showDistricts']),
     },
     methods: {
-        ...mapActions(['setActiveLayer']),
+        ...mapActions(['setActiveLayer', 'setShowDistricts']),
     },
 }
 </script>

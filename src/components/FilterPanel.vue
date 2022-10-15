@@ -8,10 +8,10 @@
                     </a>
                 </div>
                 <div class="col-auto">
-                    <div class="filter-panel__close d-none d-lg-flex" @click="$emit('update:showFilterPanel', false)">
+                    <div class="filter-panel__close d-none d-lg-flex" @click="setShowFilterPanel(false)">
                         <img src="./../assets/sidebar/arrow-left.png" alt="" />
                     </div>
-                    <button class="filter-panel__btn d-lg-none" @click="$emit('update:showFilterPanel', false)">
+                    <button class="filter-panel__btn d-lg-none" @click="setShowFilterPanel(false)">
                         Применить фильтр
                     </button>
                 </div>
@@ -24,8 +24,8 @@
                     placeholder="Поиск объектов"
                 />
             </div>
-            <div class="mb-3">
-                <v-select
+            <div class="mb-3" v-if="!inputSearch">
+                <app-select
                     :options="formatingToOptions(districts, 'name', 'id')"
                     @select="selectedDistrict = $event"
                     :selected="selectedDistrict.name"
@@ -43,8 +43,8 @@
                     class="search-result"
                     v-for="item in filteredObjects"
                     :key="item.id"
-                    @click="$emit('selectObject', item)"
-                    v-bind:class="[activeObject == item ? 'active' : '']"
+                    @click="setActiveObject(item)"
+                    :class="[activeObject?.id == item.id ? 'active' : '']"
                 >
                     <div class="search-result__category">{{ item['category']['name'] }}</div>
                     <div class="search-result__title">{{ item['title'] }}</div>
@@ -73,7 +73,7 @@
                     >
                         <div class="py-3" v-if="item.type == 'filter'">
                             <div class="mb-3">
-                                <v-select
+                                <app-select
                                     :options="formatingToOptions(allLandCategories, 'title', 'id')"
                                     @select="selectedLandCategories = $event"
                                     :selected="selectedLandCategories.name"
@@ -115,7 +115,7 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <v-select
+                                <app-select
                                     :options="formatingToOptions(allTypeOfOwnership, 'title', 'id')"
                                     @select="selectedTypeOfOwnership = $event"
                                     :selected="selectedTypeOfOwnership.name"
@@ -137,12 +137,10 @@
                                 <label class="category-checkbox" v-for="ch in item.child" :key="ch.id">
                                     <input type="checkbox" :value="ch.id" v-model="checkedChildCategories" />
                                     <div class="category-checkbox__btn">
+                                        <img :src="'https://invest-buryatia.ru' + ch['img']" alt="" v-if="ch['img']" />
                                         <img
-                                            :src="
-                                                ch['img']
-                                                    ? 'https://invest-buryatia.ru' + ch['img']
-                                                    : getIcon(ch['type'])
-                                            "
+                                            v-else
+                                            :src="ch['type'] ? iconsMarker[ch['type']] : iconsMarker['default']"
                                         />
                                     </div>
                                     <div class="category-checkbox__text">
@@ -159,7 +157,7 @@
                         </div>
                         <div class="py-3 px-2" v-else>
                             <div v-for="obj in freeCategory(item.child[0].id)" v-bind:key="obj.id">
-                                <div class="free-category-item" @click="$emit('selectObject', obj)">
+                                <div class="free-category-item" @click="setActiveObject(obj)">
                                     {{ obj.title }}
                                 </div>
                             </div>
@@ -170,10 +168,7 @@
         </div>
     </div>
     <div class="search-panel" v-show="showSearchPanel">
-        <div
-            class="search-panel__close"
-            @click="$emit('update:activeObject', null), (inputSearch = ''), $emit('update:showSearchPanel', false)"
-        >
+        <div class="search-panel__close" @click="setActiveObject(null), (inputSearch = ''), setShowSearchPanel(false)">
             <i class="fa fa-times" aria-hidden="true"></i>
         </div>
         <div class="search-panel__header">
@@ -201,8 +196,8 @@
                     class="search-result"
                     v-for="item in searchResults"
                     :key="item.id"
-                    @click="$emit('selectObject', item), hideCollapse('search-panel-body')"
-                    v-bind:class="[activeObject == item ? 'active' : '']"
+                    @click="setActiveObject(item), hideCollapse('search-panel-body')"
+                    :class="[activeObject?.id == item.id ? 'active' : '']"
                 >
                     <div class="search-result__category">{{ item['category']['name'] }}</div>
                     <div class="search-result__title">{{ item['title'] }}</div>
@@ -215,27 +210,16 @@
 
 <script>
 import _ from 'lodash'
-import vSelect from './v-select'
+import AppSelect from '@/components/ui/AppSelect.vue'
 import Slider from '@vueform/slider'
 import bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import { mapGetters, mapActions } from 'vuex'
 
 export default {
-    emits: [
-        'update:showFilterPanel',
-        'update:showSearchPanel',
-        'update:selectedDistrict',
-        'update:activeObject',
-        'update:filteredObjects',
-        'selectObject',
-    ],
+    emits: ['update:modelValue', 'update:filteredObjects'],
     props: {
-        showFilterPanel: Boolean,
-        showSearchPanel: Boolean,
-        districts: Array,
-        allObjects: Array,
         filteredObjects: Array,
-        activeObject: Object,
+        modelValue: Object,
     },
 
     data() {
@@ -245,77 +229,34 @@ export default {
             searchResultsText: '',
             searchPanelBody: false,
 
-            checkedChildCategories: [],
-            areaMarks: [0, 1],
-            area: [0, 0],
+            // start params
             distancesMarks: [0, 1],
+            areaMarks: [0, 1],
+
+            // for filter
+            checkedChildCategories: [],
+            checkedCategoriesGroups: [],
+            area: [0, 0],
             distances: [0, 0],
             selectedDistrict: { name: 'Все районы', value: null },
             selectedLandCategories: { name: 'Категория земель', value: null },
             selectedTypeArea: null,
             selectedTypeOfOwnership: { name: 'Форма собственности', value: null },
-            checkedCategoriesGroups: [],
-            // todo: дубликат
-            iconsMarker: {
-                default: require('./../assets/icons/land.png'),
-                CATEGORY_76: require('./../assets/icons/land.png'),
-                CATEGORY_83: require('./../assets/icons/building.png'),
-                CATEGORY_57: require('./../assets/icons/place.png'),
-                CATEGORY_71: require('./../assets/icons/place.png'),
-            },
         }
     },
 
-    created: function () {
-        this.debouncedSearch = _.debounce(this.getSearchResults, 500)
-    },
-
-    async mounted() {
-        const myCollapsible = document.getElementById('search-panel-body')
-        myCollapsible.addEventListener('shown.bs.collapse', () => {
-            this.searchPanelBody = true
-        })
-
-        myCollapsible.addEventListener('hidden.bs.collapse', () => {
-            this.searchPanelBody = false
-        })
-
-        await this.fetchCategoryGroup()
-        await this.fetchTypeOfOwnership()
-
-        let areaMax = 0
-        let distanceMax = 0
-
-        this.allObjects.forEach((item) => {
-            if (+item.distanceToUU >= distanceMax) {
-                distanceMax = +item.distanceToUU
-            }
-            if (+item.area >= areaMax) {
-                areaMax = +item.area
-            }
-
-            // Все дочерние категории записываются в выбранные категории
-            if (this.checkedChildCategories.indexOf(item.category.id) == -1) {
-                this.checkedChildCategories.splice(this.checkedChildCategories.length, 1, item.category.id)
-            }
-
-            // Все родительние категории записываются в выбранные категории
-            if (this.checkedCategoriesGroups.indexOf(item.category.parentId) == -1) {
-                this.checkedCategoriesGroups.splice(this.checkedCategoriesGroups.length, 1, item.category.parentId)
-            }
-        })
-
-        this.distancesMarks.splice(1, 1, distanceMax)
-        this.areaMarks.splice(1, 1, areaMax)
-
-        setTimeout(() => {
-            this.distances.splice(1, 1, distanceMax)
-            this.area.splice(1, 1, areaMax)
-        }, 0)
-    },
-
     computed: {
-        ...mapGetters(['allCategoryGroup', 'allTypeOfOwnership', 'allLandCategories']),
+        ...mapGetters([
+            'showFilterPanel',
+            'allCategoryGroup',
+            'allTypeOfOwnership',
+            'allLandCategories',
+            'districts',
+            'showSearchPanel',
+            'allObjects',
+            'activeObject',
+            'iconsMarker',
+        ]),
 
         findObjects() {
             if (this.inputSearch) {
@@ -356,22 +297,63 @@ export default {
     },
 
     methods: {
-        ...mapActions(['fetchCategoryGroup', 'fetchTypeOfOwnership']),
+        ...mapActions([
+            'setActiveObject',
+            'setShowFilterPanel',
+            'setShowSearchPanel',
+            'fetchCategoryGroup',
+            'fetchTypeOfOwnership',
+        ]),
+
+        initListenCollapseSearch() {
+            const myCollapsible = document.getElementById('search-panel-body')
+            myCollapsible.addEventListener('shown.bs.collapse', () => {
+                this.searchPanelBody = true
+            })
+
+            myCollapsible.addEventListener('hidden.bs.collapse', () => {
+                this.searchPanelBody = false
+            })
+        },
+
+        initStartParams() {
+            let areaMax = 0
+            let distanceMax = 0
+
+            this.allObjects.forEach((item) => {
+                if (+item.distanceToUU >= distanceMax) {
+                    distanceMax = +item.distanceToUU
+                }
+                if (+item.area >= areaMax) {
+                    areaMax = +item.area
+                }
+
+                // Все дочерние категории записываются в выбранные категории
+                if (this.checkedChildCategories.indexOf(item.category.id) == -1) {
+                    this.checkedChildCategories.splice(this.checkedChildCategories.length, 1, item.category.id)
+                }
+
+                // Все родительние категории записываются в выбранные категории
+                if (this.checkedCategoriesGroups.indexOf(item.category.parentId) == -1) {
+                    this.checkedCategoriesGroups.splice(this.checkedCategoriesGroups.length, 1, item.category.parentId)
+                }
+            })
+
+            this.distancesMarks.splice(1, 1, distanceMax)
+            this.areaMarks.splice(1, 1, areaMax)
+
+            setTimeout(() => {
+                this.distances.splice(1, 1, distanceMax)
+                this.area.splice(1, 1, areaMax)
+            }, 0)
+        },
+
         formatingToOptions(options, name, value) {
             let newArr = options.map((item) => {
                 return { name: item[name], value: item[value] }
             })
 
             return newArr
-        },
-
-        // todo: дубликат
-        getIcon(category_type) {
-            if (!this.iconsMarker[category_type]) {
-                return this.iconsMarker['default']
-            } else {
-                return this.iconsMarker[category_type]
-            }
         },
 
         showCollapse(id) {
@@ -425,6 +407,53 @@ export default {
         },
     },
 
+    created: function () {
+        this.debouncedSearch = _.debounce(this.getSearchResults, 500)
+    },
+
+    async mounted() {
+        this.initListenCollapseSearch()
+
+        await this.fetchCategoryGroup()
+        await this.fetchTypeOfOwnership()
+
+        this.initStartParams()
+
+        // формируется filter
+        this.$watch(
+            (vm) => [
+                vm.inputSearch,
+                vm.checkedChildCategories,
+                vm.checkedCategoriesGroups,
+                vm.area,
+                vm.distances,
+                vm.selectedDistrict,
+                vm.selectedLandCategories,
+                vm.selectedTypeArea,
+                vm.selectedTypeOfOwnership,
+            ],
+            () => {
+                const filter = {
+                    inputSearch: this.inputSearch,
+                    childCategories: this.checkedChildCategories,
+                    categoriesGroups: this.checkedCategoriesGroups,
+                    area: this.area,
+                    distanceToUU: this.distances,
+                    district: this.selectedDistrict,
+                    landCategory: this.selectedLandCategories,
+                    typeArea: this.selectedTypeArea,
+                    typeOfOwnership: this.selectedTypeOfOwnership,
+                }
+
+                this.$emit('update:modelValue', filter)
+            },
+            {
+                immediate: true,
+                deep: true,
+            }
+        )
+    },
+
     watch: {
         inputSearch: function () {
             this.searchResultsText = 'Ожидаю, когда вы закончите печатать...'
@@ -437,7 +466,7 @@ export default {
     },
 
     components: {
-        vSelect,
+        AppSelect,
         Slider,
     },
 }

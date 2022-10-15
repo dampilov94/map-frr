@@ -3,13 +3,13 @@
         <div class="nav-desktop__logo">
             <img src="./../assets/img/logo-mini.png" class="img-fluid" alt="" />
         </div>
-        <div class="nav-desktop__item" @click="$emit('update:showFilterPanel', true)">
+        <div class="nav-desktop__item" @click="setShowFilterPanel(true)">
             <i class="fa fa-search" aria-hidden="true"></i>
         </div>
-        <div class="nav-desktop__item" @click="$emit('update:showFilterPanel', true)">
+        <div class="nav-desktop__item" @click="setShowFilterPanel(true)">
             <i class="fa fa-sliders" aria-hidden="true"></i>
         </div>
-        <div class="nav-desktop__toggler" @click="$emit('update:showFilterPanel', true)">
+        <div class="nav-desktop__toggler" @click="setShowFilterPanel(true)">
             <i class="fa fa-chevron-right" aria-hidden="true"></i>
         </div>
     </div>
@@ -18,12 +18,12 @@
         <nav class="navbar bg-light navbar-expand">
             <div class="navbar-nav w-100 nav-justified">
                 <li class="nav-item">
-                    <a class="nav-link" @click.prevent="$emit('update:showFilterPanel', true)">
+                    <a class="nav-link" @click.prevent="setShowFilterPanel(true)">
                         <i class="fa fa-sliders" aria-hidden="true"></i>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" @click.prevent="$emit('update:showSearchPanel', true)">
+                    <a class="nav-link" @click.prevent="setShowSearchPanel(true)">
                         <i class="fa fa-search" aria-hidden="true"></i>
                     </a>
                 </li>
@@ -64,11 +64,16 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from 'vuex'
+
 export default {
-    emits: ['mapToBuryatia', 'shareModal', 'selectMapModal', 'update:showFilterPanel', 'update:showSearchPanel'],
-    props: {
-        showFilterPanel: Boolean,
-        showSearchPanel: Boolean,
+    emits: ['mapToBuryatia', 'shareModal', 'selectMapModal'],
+    computed: {
+        ...mapGetters(['showFilterPanel', 'showSearchPanel']),
+    },
+
+    methods: {
+        ...mapActions(['setShowFilterPanel', 'setShowSearchPanel']),
     },
 }
 </script>

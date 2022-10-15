@@ -2,7 +2,7 @@
     <div class="select-block">
         <div
             class="select-block__title"
-            v-bind:class="{ active: areOptionsVisible }"
+            :class="{ active: areOptionsVisible }"
             @click="areOptionsVisible = !areOptionsVisible"
         >
             {{ selected }}
@@ -25,7 +25,6 @@
 
 <script>
 export default {
-    name: 'v-select',
     props: {
         options: {
             type: Array,
@@ -65,6 +64,7 @@ export default {
     mounted() {
         document.addEventListener('click', this.hideSelect.bind(this), true)
     },
+
     // beforeDestroy() {
     //     document.removeEventListener('click', this.hideSelect)
     // },
@@ -96,7 +96,7 @@ export default {
             top: 0px;
             right: 0px;
             background-color: #f5f5fa;
-            background-image: url('../assets/img/icons/arrow-select.png');
+            background-image: url('@/assets/img/icons/arrow-select.png');
             background-position: center;
             background-size: 24px;
             background-repeat: no-repeat;

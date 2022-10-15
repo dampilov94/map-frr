@@ -1,5 +1,5 @@
 <template>
-    <the-topbar @mapToBuryatia="showBuryatia" @shareModal="shareModal = true" v-model:districts="showDistricts" />
+    <the-topbar @mapToBuryatia="showBuryatia" @shareModal="shareModal = true" />
     <teleport to="body">
         <app-message />
         <app-modal v-model:open="shareModal" scrollable centered size="lg">
@@ -7,40 +7,14 @@
                 <h5 class="custom-modal__title">Поделиться картой</h5>
             </template>
             <template #default="{ close }">
-                <div class="modal-share">
-                    <div class="modal-share__field">
-                        {{ shareLink }}
-                    </div>
-                    <div class="modal-share__btn" @click="copyShareLink(), close()">
-                        Скопировать ссылку <i class="fa fa-clone" aria-hidden="true"></i>
-                    </div>
-                </div>
+                <share-modal @copied="close" :zoom="zoom" :center="center" />
             </template>
         </app-modal>
         <app-modal v-model:open="selectMapModal" centered>
             <template #header>
                 <h5 class="custom-modal__title">Выбрать карту</h5>
             </template>
-            <template #default>
-                <ul class="select-map">
-                    <li
-                        class="select-map-item"
-                        @click="setActiveLayer(item)"
-                        v-for="item in tileLayers"
-                        :key="item"
-                        v-bind:class="[activeLayer.name == item.name ? 'active' : '']"
-                    >
-                        {{ item.name }}
-                    </li>
-                    <li
-                        class="select-map-item"
-                        v-bind:class="{ active: showDistricts }"
-                        @click="showDistricts = !showDistricts"
-                    >
-                        Районы
-                    </li>
-                </ul>
-            </template>
+            <select-map-modal />
         </app-modal>
     </teleport>
 
@@ -49,38 +23,29 @@
             <div class="panels">
                 <div class="panels__item">
                     <the-navbar
-                        v-model:showFilterPanel="showFilterPanel"
-                        v-model:showSearchPanel="showSearchPanel"
                         @mapToBuryatia="showBuryatia"
                         @shareModal="shareModal = true"
                         @selectMapModal="selectMapModal = true"
                     />
                 </div>
                 <div class="panels__item">
-                    <filter-panel
-                        v-model:showFilterPanel="showFilterPanel"
-                        v-model:showSearchPanel="showSearchPanel"
-                        v-model:activeObject="activeObject"
-                        v-model:filteredObjects="filteredObjects"
-                        :districts="allDistricts"
-                        :allObjects="allObjects"
-                        @selectObject="showObjectInfo"
-                    />
+                    <filter-panel v-model:filteredObjects="filteredObjects" v-model="filter" />
                 </div>
                 <div class="panels__item">
-                    <object-details v-model:activeObject="activeObject" />
+                    <object-details />
                 </div>
             </div>
         </div>
         <div class="col">
-            <the-map
-                :markers="filteredObjects"
-                :districts="allDistricts"
-                :showDistricts="showDistricts"
-                v-model:zoom="zoom"
-                v-model:center="center"
-                @selectObject="showObjectInfo"
-            />
+            <the-map :markers="filteredObjects" v-model:zoom="zoom" v-model:center="center" />
+        </div>
+    </div>
+
+    <div style="z-index: 99999; position: fixed; top: 0; left: 50%; width: auto; height: 90vh; overflow: scroll">
+        <div class="bg-light">
+            <pre>
+                {{ filter }}
+            </pre>
         </div>
     </div>
 </template>
@@ -95,6 +60,8 @@ import TheNavbar from './components/TheNavbar'
 import TheMap from './components/TheMap'
 import FilterPanel from './components/FilterPanel.vue'
 import ObjectDetails from './components/ObjectDetails.vue'
+import ShareModal from './components/share/ShareModal.vue'
+import SelectMapModal from './components/SelectMapModal.vue'
 
 export default {
     name: 'App',
@@ -106,95 +73,49 @@ export default {
         FilterPanel,
         ObjectDetails,
         TheMap,
+        ShareModal,
+        SelectMapModal,
     },
     data() {
         return {
-            showFilterPanel: false,
-            showSearchPanel: false,
             shareModal: false,
             selectMapModal: false,
             filteredObjects: [],
-            activeObject: null,
-
-            tileLayers: [
-                {
-                    name: 'Схема',
-                    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c'],
-                },
-                // {
-                //     name: 'Схема',
-                //     url: 'https://api.mapbox.com/styles/v1/investmapbur/ckrbvfgm10xfu17o58y6iv5vn/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiaW52ZXN0bWFwYnVyIiwiYSI6ImNrcmJ1MXhyMjBlZm0zMHBlY3dxZ2N0cm0ifQ.zHcxNLF7KSfDvDCtM963Iw',
-                //     subdomains: [],
-                // },
-                {
-                    name: 'Спутник',
-                    url: 'https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
-                    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-                },
-                {
-                    name: 'Гибрид',
-                    url: 'http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',
-                    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-                },
-            ],
-
             zoom: 6,
-            showDistricts: true,
             center: [53.328248, 108.837283],
+
+            filter: null,
         }
     },
 
     computed: {
-        ...mapGetters(['allDistricts', 'allObjects', 'layers', 'activeLayer']),
-
-        shareLink() {
-            if (this.activeObject) {
-                return `${window.location.host}${location.pathname}?object=${this.activeObject.id}`
-            }
-
-            if (this.center[0] && this.center[1]) {
-                return `${window.location.host}${location.pathname}?zoom=${this.zoom}&lat=${this.center[0]}&lng=${this.center[1]}`
-            } else {
-                return `${window.location.host}${location.pathname}?zoom=${this.zoom}&lat=${this.center.lat}&lng=${this.center.lng}`
-            }
-        },
+        ...mapGetters(['activeObject', 'districts', 'showDistricts', 'allObjects', 'layers']),
     },
 
     methods: {
-        ...mapActions(['setMessage', 'setActiveLayer', 'fetchDistricts', 'fetchObjects']),
-
-        copyShareLink() {
-            try {
-                navigator.clipboard.writeText(this.shareLink)
-
-                this.setMessage({
-                    text: 'Ссылка скопирована.',
-                    type: 'success',
-                })
-            } catch (e) {
-                this.setMessage({
-                    text: 'Ошибка ' + e.name + ':' + e.message,
-                    type: 'danger',
-                })
-            }
-        },
+        ...mapActions([
+            'setActiveObject',
+            'setActiveLayer',
+            'fetchDistricts',
+            'fetchObjects',
+            'setShowDistricts',
+            'setShowFilterPanel',
+        ]),
 
         showBuryatia() {
             this.zoom = 6
             this.center = [53.328248, 108.837283]
         },
 
-        showObjectInfo(item) {
-            this.activeObject = item
+        showObjectInfo() {
             this.zoom = 16
 
             setTimeout(() => {
-                if (Array.isArray(item.coords[0])) {
+                if (Array.isArray(this.activeObject.coords[0])) {
                     // todo: polygonCenter на этой странице нет
                     // this.center = [...this.polygonCenter(item['coords'])]
                 } else {
-                    this.center = [...item['coords']]
+                    this.center = [...this.activeObject['coords']]
                 }
                 this.zoom = 18
             }, 1)
@@ -222,11 +143,14 @@ export default {
                     this.zoom = 8
                 }, 1)
             }
+
+            if (val) {
+                this.showObjectInfo()
+            }
         },
     },
 
     async mounted() {
-        await this.fetchDistricts()
         await this.fetchObjects()
 
         let urlParams = new URLSearchParams(window.location.search)
@@ -236,7 +160,7 @@ export default {
                 return item.id == id
             })
 
-            this.showObjectInfo(obj)
+            this.setActiveObject(obj)
         }
 
         if (urlParams.has('zoom') && urlParams.has('lat') && urlParams.has('lng')) {
@@ -248,7 +172,7 @@ export default {
         }
 
         if (window.innerWidth >= 992) {
-            this.showFilterPanel = true
+            this.setShowFilterPanel(true)
         }
     },
 }

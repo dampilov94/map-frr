@@ -16,10 +16,37 @@ if (process.env.NODE_ENV === 'development') {
 
 export default createStore({
     plugins,
-    state: {},
-    mutations: {},
-    actions: {},
-    getters: {},
+    state() {
+        return {
+            showFilterPanel: false,
+            showSearchPanel: false,
+        }
+    },
+    getters: {
+        showFilterPanel(state) {
+            return state.showFilterPanel
+        },
+        showSearchPanel(state) {
+            return state.showSearchPanel
+        },
+    },
+    actions: {
+        setShowFilterPanel({ commit }, value) {
+            commit('setShowFilterPanel', value)
+        },
+        setShowSearchPanel({ commit }, value) {
+            commit('setShowSearchPanel', value)
+        },
+    },
+    mutations: {
+        setShowFilterPanel(state, value) {
+            state.showFilterPanel = value
+        },
+        setShowSearchPanel(state, value) {
+            state.showSearchPanel = value
+        },
+    },
+
     modules: {
         map,
         messages,

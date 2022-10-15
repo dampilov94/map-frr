@@ -9,7 +9,7 @@
             <div class="object-card-prev__address">{{ activeObject['address'] }}</div>
         </div>
 
-        <div class="object-card custom-scroll" v-bind:class="{ fullscreen: fullscreenObject }" v-if="activeObject">
+        <div class="object-card custom-scroll" :class="{ fullscreen: fullscreenObject }" v-if="activeObject">
             <div class="object-card__category">
                 {{ activeObject['category']['name'] }}
             </div>
@@ -86,28 +86,28 @@
             </div>
 
             <div class="card-data-block object-card__icons">
-                <div class="prop-icon" title="Электричество" v-bind:class="{ has: activeObject['powerSupply'] }">
+                <div class="prop-icon" title="Электричество" :class="{ has: activeObject['powerSupply'] }">
                     <img src="./../assets/img/card/light.png" alt="" />
                 </div>
-                <div class="prop-icon" title="Газ" v-bind:class="{ has: activeObject['gasSupply'] }">
+                <div class="prop-icon" title="Газ" :class="{ has: activeObject['gasSupply'] }">
                     <img src="./../assets/img/card/gas.png" alt="" />
                 </div>
-                <div class="prop-icon" title="Водоснабжение" v-bind:class="{ has: activeObject['waterSupply'] }">
+                <div class="prop-icon" title="Водоснабжение" :class="{ has: activeObject['waterSupply'] }">
                     <img src="./../assets/img/card/water.png" alt="" />
                 </div>
                 <!-- вместо транспорт инет -->
                 <div
                     class="prop-icon"
                     title="Интернет"
-                    v-bind:class="{ has: activeObject['transportInfrastructureAvailability'] }"
+                    :class="{ has: activeObject['transportInfrastructureAvailability'] }"
                 >
                     <img src="./../assets/img/card/enet.png" alt="" />
                 </div>
 
-                <div class="prop-icon" title="Водоотведение" v-bind:class="{ has: activeObject['waterDisposal'] }">
+                <div class="prop-icon" title="Водоотведение" :class="{ has: activeObject['waterDisposal'] }">
                     <img src="./../assets/img/card/water-out.png" alt="" />
                 </div>
-                <div class="prop-icon" title="Теплоснабжение" v-bind:class="{ has: activeObject['heatSupply'] }">
+                <div class="prop-icon" title="Теплоснабжение" :class="{ has: activeObject['heatSupply'] }">
                     <img src="./../assets/img/card/heating.png" alt="" />
                 </div>
             </div>
@@ -324,10 +324,8 @@ import AppModal from './ui/AppModal'
 import { Fancybox } from '@fancyapps/ui/src/Fancybox/Fancybox.js'
 
 export default {
-    emits: ['update:activeObject'],
-    props: {
-        activeObject: Object,
-    },
+    emits: [],
+    props: {},
 
     components: { AppModal },
 
@@ -345,14 +343,14 @@ export default {
     },
 
     computed: {
-        ...mapGetters(['allDistricts', 'allLandCategories']),
+        ...mapGetters(['districts', 'allLandCategories', 'activeObject']),
     },
 
     methods: {
-        ...mapActions(['fetchLandCategories']),
+        ...mapActions(['fetchLandCategories', 'setActiveObject']),
 
         close() {
-            this.$emit('update:activeObject', null)
+            this.setActiveObject(null)
             this.fullscreenObject = false
         },
 
@@ -369,7 +367,7 @@ export default {
         },
 
         getMunicipalArea(id) {
-            let ma = this.allDistricts.find((item) => {
+            let ma = this.districts.find((item) => {
                 return item.id == +id
             })
 
@@ -673,6 +671,7 @@ export default {
 
     a {
         color: inherit;
+        text-decoration: none;
         &:hover {
             color: inherit;
             text-decoration: none;

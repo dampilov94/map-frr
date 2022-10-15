@@ -30,19 +30,24 @@
                                     :weight="3"
                                     color="#29d321"
                                     fillColor="#29d321"
-                                    :visible="item == activeObject ? true : false"
+                                    :visible="item.id == activeObject?.id ? true : false"
                                 >
                                     <l-popup>
                                         {{ item['title'] }}
                                     </l-popup>
                                 </l-polygon>
-                                <l-marker :lat-lng="polygonCenter(item['coords'])" @click="$emit('selectObject', item)">
-                                    <l-icon :icon-size="iconSize" class-name="icon-base">
+                                <l-marker :lat-lng="polygonCenter(item['coords'])" @click="setActiveObject(item)">
+                                    <l-icon :icon-size="iconSize">
                                         <img
+                                            :src="'https://invest-buryatia.ru' + item['category']['img']"
+                                            v-if="item['category']['img']"
+                                        />
+                                        <img
+                                            v-else
                                             :src="
-                                                item['category']['img']
-                                                    ? 'https://invest-buryatia.ru' + item['category']['img']
-                                                    : getIcon(item['category']['type'])
+                                                item['category']['type']
+                                                    ? iconsMarker[item['category']['type']]
+                                                    : iconsMarker['default']
                                             "
                                         />
                                     </l-icon>
@@ -52,14 +57,19 @@
                                 <l-marker
                                     v-if="item['coords'].length == 2"
                                     :lat-lng="item['coords']"
-                                    @click="$emit('selectObject', item)"
+                                    @click="setActiveObject(item)"
                                 >
                                     <l-icon :icon-size="iconSize" class-name="icon-base">
                                         <img
+                                            :src="'https://invest-buryatia.ru' + item['category']['img']"
+                                            v-if="item['category']['img']"
+                                        />
+                                        <img
+                                            v-else
                                             :src="
-                                                item['category']['img']
-                                                    ? 'https://invest-buryatia.ru/' + item['category']['img']
-                                                    : getIcon(item['category']['type'])
+                                                item['category']['type']
+                                                    ? iconsMarker[item['category']['type']]
+                                                    : iconsMarker['default']
                                             "
                                         />
                                     </l-icon>
@@ -92,16 +102,14 @@
 <script>
 import { LMap, LTileLayer, LControlZoom, LMarker, LIcon, LPolygon, LPopup } from '@vue-leaflet/vue-leaflet'
 import MarkerCluster from './MarkerCluster.vue'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
-    emits: ['update:zoom', 'update:center', 'selectObject'],
+    emits: ['update:zoom', 'update:center'],
     props: {
-        districts: Array,
         zoom: Number,
         center: [Array, Object],
         markers: Array,
-        showDistricts: Boolean,
     },
     components: {
         LMap,
@@ -120,21 +128,15 @@ export default {
             leafletObject: null,
             iconSize: [30, 30],
             focusedDistrict: null,
-            iconsMarker: {
-                default: require('./../assets/icons/land.png'),
-                CATEGORY_76: require('./../assets/icons/land.png'),
-                CATEGORY_83: require('./../assets/icons/building.png'),
-                CATEGORY_57: require('./../assets/icons/place.png'),
-                CATEGORY_71: require('./../assets/icons/place.png'),
-            },
         }
     },
 
     computed: {
-        ...mapGetters(['activeLayer']),
+        ...mapGetters(['activeObject', 'activeLayer', 'showDistricts', 'districts', 'iconsMarker']),
     },
 
     methods: {
+        ...mapActions(['fetchDistricts', 'setActiveObject']),
         zoomUpdated(zoom) {
             this.$emit('update:zoom', zoom)
         },
@@ -193,14 +195,10 @@ export default {
         handleMapClick() {
             this.focusedDistrict = null
         },
+    },
 
-        getIcon(category_type) {
-            if (!this.iconsMarker[category_type]) {
-                return this.iconsMarker['default']
-            } else {
-                return this.iconsMarker[category_type]
-            }
-        },
+    async mounted() {
+        await this.fetchDistricts()
     },
 
     watch: {
@@ -218,11 +216,5 @@ export default {
 #map {
     width: 100%;
     height: 100vh;
-}
-.icon-base {
-    img {
-        width: 100% !important;
-        height: auto;
-    }
 }
 </style>

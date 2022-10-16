@@ -36,12 +36,12 @@
 
         <div class="search-results" v-if="inputSearch">
             <div class="search-results__text">
-                {{ searchResultsText }}
+                {{ searchingMessage }}
             </div>
             <div class="filter-panel__body search-body custom-scroll">
                 <div
                     class="search-result"
-                    v-for="item in filteredObjects"
+                    v-for="item in findObjects"
                     :key="item.id"
                     @click="setActiveObject(item)"
                     :class="[activeObject?.id == item.id ? 'active' : '']"
@@ -181,12 +181,11 @@
 
             <div class="search-panel__nav" v-if="inputSearch">
                 <div class="search-panel__text">
-                    {{ searchResultsText }}
+                    {{ searchingMessage }}
                 </div>
                 <a class="search-panel__nav-btn" data-bs-toggle="collapse" href="#search-panel-body">
-                    <!-- todo: searchPanelBody не используется -->
-                    <span v-if="searchPanelBody">Показать на карте</span>
-                    <span v-else>Показать списком</span>
+                    <span v-if="searchPanelBody"><i class="fa fa-globe" aria-hidden="true"></i></span>
+                    <span v-else><i class="fa fa-list" aria-hidden="true"></i></span>
                 </a>
             </div>
         </div>
@@ -194,7 +193,7 @@
             <div class="search-panel__body custom-scroll">
                 <div
                     class="search-result"
-                    v-for="item in searchResults"
+                    v-for="item in findObjects"
                     :key="item.id"
                     @click="setActiveObject(item), hideCollapse('search-panel-body')"
                     :class="[activeObject?.id == item.id ? 'active' : '']"
@@ -209,24 +208,23 @@
 </template>
 
 <script>
-import _ from 'lodash'
 import AppSelect from '@/components/ui/AppSelect.vue'
 import Slider from '@vueform/slider'
 import bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import { mapGetters, mapActions } from 'vuex'
 
 export default {
-    emits: ['update:modelValue', 'update:filteredObjects'],
+    emits: ['update:modelValue'],
     props: {
-        filteredObjects: Array,
+        findObjects: Array,
+        findObjectsByParams: Array,
         modelValue: Object,
+        searchingMessage: String,
     },
 
     data() {
         return {
             inputSearch: '',
-            searchResults: [],
-            searchResultsText: '',
             searchPanelBody: false,
 
             // start params
@@ -257,43 +255,6 @@ export default {
             'activeObject',
             'iconsMarker',
         ]),
-
-        findObjects() {
-            if (this.inputSearch) {
-                return this.searchResults
-            } else {
-                return this.filteredByAll
-            }
-        },
-
-        filteredObjectsByMainParams() {
-            return this.allObjects.filter((item) => {
-                return (
-                    (item.municipalArea == this.selectedDistrict.value || this.selectedDistrict.value == null) && //Фильтер по району municipalArea
-                    (item.landCategory == this.selectedLandCategories.value ||
-                        this.selectedLandCategories.value == null) && // Фильтер по категории земель
-                    //(item.typeArea.toLowerCase() == this.selectedTypeArea || this.selectedTypeArea == null) && // Фильтер по типу
-                    +item.area.replace(',', '.') >= this.area[0] &&
-                    +item.area.replace(',', '.') <= this.area[1] && // Фильтер по площади
-                    item.distanceToUU >= this.distances[0] &&
-                    item.distanceToUU <= this.distances[1] && // Фильтер по дистанции до уу
-                    (item.typeOfOwnership.id == this.selectedTypeOfOwnership.value ||
-                        this.selectedTypeOfOwnership.value == null) // Фильтер по форме собственности
-                )
-            })
-        },
-
-        filteredByCheckedChildCategories() {
-            return this.filteredObjectsByMainParams.filter((item) => {
-                return this.checkedChildCategories.indexOf(item.category.id) != -1
-            })
-        },
-
-        filteredByAll() {
-            return this.filteredByCheckedChildCategories.filter((item) => {
-                return this.checkedCategoriesGroups.indexOf(item.category.parentId) != -1
-            })
-        },
     },
 
     methods: {
@@ -368,26 +329,8 @@ export default {
             bsCollapse.hide()
         },
 
-        getSearchResults() {
-            this.searchResults = []
-
-            const search = this.inputSearch.toLowerCase()
-
-            if (search) {
-                this.allObjects.filter((item) => {
-                    let item_as_str = JSON.stringify(item).toLowerCase()
-
-                    if (item_as_str.indexOf(search) != -1) {
-                        this.searchResults.push(item)
-                    }
-                })
-
-                this.searchResultsText = `Найдено ${this.searchResults.length} объектов`
-            }
-        },
-
         countOfCategory(id) {
-            let arrCategory = this.filteredObjectsByMainParams.filter((item) => {
+            let arrCategory = this.findObjectsByParams.filter((item) => {
                 return +item.category.id == +id
             })
 
@@ -395,7 +338,7 @@ export default {
         },
 
         countOfCategoryGroup(id) {
-            let arrCategory = this.filteredObjectsByMainParams.filter((item) => {
+            let arrCategory = this.findObjectsByParams.filter((item) => {
                 return +item.category.parentId == +id
             })
 
@@ -405,10 +348,6 @@ export default {
         resetFilterChildCategories() {
             this.checkedChildCategories = [undefined]
         },
-    },
-
-    created: function () {
-        this.debouncedSearch = _.debounce(this.getSearchResults, 500)
     },
 
     async mounted() {
@@ -439,10 +378,10 @@ export default {
                     categoriesGroups: this.checkedCategoriesGroups,
                     area: this.area,
                     distanceToUU: this.distances,
-                    district: this.selectedDistrict,
-                    landCategory: this.selectedLandCategories,
+                    district: this.selectedDistrict.value,
+                    landCategory: this.selectedLandCategories.value,
                     typeArea: this.selectedTypeArea,
-                    typeOfOwnership: this.selectedTypeOfOwnership,
+                    typeOfOwnership: this.selectedTypeOfOwnership.value,
                 }
 
                 this.$emit('update:modelValue', filter)
@@ -452,17 +391,6 @@ export default {
                 deep: true,
             }
         )
-    },
-
-    watch: {
-        inputSearch: function () {
-            this.searchResultsText = 'Ожидаю, когда вы закончите печатать...'
-            this.debouncedSearch()
-        },
-
-        findObjects(val) {
-            this.$emit('update:filteredObjects', val)
-        },
     },
 
     components: {

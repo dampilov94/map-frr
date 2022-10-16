@@ -29,7 +29,12 @@
                     />
                 </div>
                 <div class="panels__item">
-                    <filter-panel v-model:filteredObjects="filteredObjects" v-model="filter" />
+                    <filter-panel
+                        v-model="filter"
+                        :findObjects="findObjects"
+                        :findObjectsByParams="filteredByMainParams"
+                        :searchingMessage="searchResultsText"
+                    />
                 </div>
                 <div class="panels__item">
                     <object-details />
@@ -37,11 +42,14 @@
             </div>
         </div>
         <div class="col">
-            <the-map :markers="filteredObjects" v-model:zoom="zoom" v-model:center="center" />
+            <the-map :markers="findObjects" v-model:zoom="zoom" v-model:center="center" />
         </div>
     </div>
 
-    <div style="z-index: 99999; position: fixed; top: 0; left: 50%; width: auto; height: 90vh; overflow: scroll">
+    <div
+        class="d-none"
+        style="z-index: 99999; position: fixed; top: 0; left: 50%; width: auto; height: 90vh; overflow: scroll"
+    >
         <div class="bg-light">
             <pre>
                 {{ filter }}
@@ -51,6 +59,7 @@
 </template>
 
 <script>
+import _ from 'lodash'
 import { mapGetters, mapActions } from 'vuex'
 
 import AppModal from './components/ui/AppModal'
@@ -80,16 +89,94 @@ export default {
         return {
             shareModal: false,
             selectMapModal: false,
-            filteredObjects: [],
+            filteredObj: [],
             zoom: 6,
             center: [53.328248, 108.837283],
 
             filter: null,
+            searchResults: [],
+            searchResultsText: '',
+            getSearchResults: Function,
         }
     },
 
     computed: {
         ...mapGetters(['activeObject', 'districts', 'showDistricts', 'allObjects', 'layers']),
+
+        filteredByMainParams() {
+            if (!this.inputSearch && this.filter) {
+                return (
+                    this.allObjects
+                        .filter((item) => {
+                            //Фильтер по району municipalArea
+                            return item.municipalArea == this.filter.district || this.filter.district == null
+                        })
+                        .filter((item) => {
+                            // Фильтер по категории земель
+                            return item.landCategory == this.filter.landCategory || this.filter.landCategory == null
+                        })
+                        // .filter((item) => {
+                        //     // Фильтер по типу
+                        //     return item.typeArea.toLowerCase() == this.filter.typeArea || this.filter.typeArea == null
+                        // })
+                        .filter((item) => {
+                            // Фильтер по площади
+                            return (
+                                +item.area.replace(',', '.') >= this.filter.area[0] &&
+                                +item.area.replace(',', '.') <= this.filter.area[1]
+                            )
+                        })
+                        .filter((item) => {
+                            // Фильтер по дистанции до уу
+                            return (
+                                item.distanceToUU >= this.filter.distanceToUU[0] &&
+                                item.distanceToUU <= this.filter.distanceToUU[1]
+                            )
+                        })
+                        .filter((item) => {
+                            // Фильтер по форме собственности
+                            return (
+                                item.typeOfOwnership.id == this.filter.selectedTypeOfOwnership ||
+                                this.filter.selectedTypeOfOwnership == null
+                            )
+                        })
+                )
+            } else {
+                return this.allObjects
+            }
+        },
+
+        filteredByCheckedChildCategories() {
+            if (this.filter) {
+                return this.filteredByMainParams.filter((item) => {
+                    return this.filter.childCategories.indexOf(item.category.id) != -1
+                })
+            } else {
+                return this.filteredByMainParams
+            }
+        },
+
+        filterResults() {
+            if (this.filter) {
+                return this.filteredByCheckedChildCategories.filter((item) => {
+                    return this.filter.categoriesGroups.indexOf(item.category.parentId) != -1
+                })
+            } else {
+                return this.filteredByCheckedChildCategories
+            }
+        },
+
+        inputSearch() {
+            return this.filter ? this.filter.inputSearch : ''
+        },
+
+        findObjects() {
+            if (this.inputSearch) {
+                return this.searchResults
+            } else {
+                return this.filterResults
+            }
+        },
     },
 
     methods: {
@@ -129,6 +216,11 @@ export default {
     },
 
     watch: {
+        inputSearch() {
+            this.getSearchResults()
+            this.searchResultsText = 'Ожидаю, когда вы закончите печатать...'
+        },
+
         activeObject(val, oldVal) {
             if (!val && oldVal) {
                 this.zoom = 11
@@ -152,6 +244,26 @@ export default {
 
     async mounted() {
         await this.fetchObjects()
+
+        // for debounce start
+        const search = () => {
+            this.searchResults = []
+
+            const searchText = this.inputSearch.toLowerCase()
+
+            if (searchText !== '') {
+                this.searchResults = this.allObjects.filter((item) => {
+                    let itemStr = JSON.stringify(item).toLowerCase()
+
+                    return itemStr.indexOf(searchText) != -1
+                })
+
+                this.searchResultsText = `Найдено ${this.searchResults.length} объектов`
+            }
+        }
+
+        this.getSearchResults = _.debounce(search, 500)
+        // for debounce end
 
         let urlParams = new URLSearchParams(window.location.search)
         if (urlParams.has('object')) {

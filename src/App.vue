@@ -61,6 +61,7 @@
 <script>
 import _ from 'lodash'
 import { mapGetters, mapActions } from 'vuex'
+import { polygonCenter } from '@/utils/polygon'
 
 import AppModal from './components/ui/AppModal'
 import AppMessage from './components/ui/AppMessage'
@@ -199,8 +200,7 @@ export default {
 
             setTimeout(() => {
                 if (Array.isArray(this.activeObject.coords[0])) {
-                    // todo: polygonCenter на этой странице нет
-                    // this.center = [...this.polygonCenter(item['coords'])]
+                    this.center = [...polygonCenter(this.activeObject['coords'])]
                 } else {
                     this.center = [...this.activeObject['coords']]
                 }
@@ -226,8 +226,7 @@ export default {
                 this.zoom = 11
                 setTimeout(() => {
                     if (Array.isArray(oldVal.coords[0])) {
-                        // todo: polygonCenter на этой странице нет
-                        // this.center = [...this.polygonCenter(oldVal['coords'])]
+                        this.center = [...polygonCenter(oldVal['coords'])]
                     } else {
                         this.center = [...oldVal['coords']]
                     }

@@ -6,7 +6,7 @@
             "category": {
                 "id": "111-2",
                 "name": "Земельные участки",
-                "type": "CATEGORY_1",
+                "type": "CATEGORY_57",
                 "status": "ACTIVE",
                 "parentId": "111"
             },
@@ -24,7 +24,7 @@
             "visualType": "POLYGON",
             "coords": [51.771285975643416, 107.60085403568378],
             "status": "ACTIVE",
-            "area": 5,
+            "area": "5",
             "dopInfo": "Имеется стационарная телефонная линия с возможностью подключения Интернета по технологии ADSL",
             "typeArea": "GREENFIELD",
             "cadastralNumber": "Отсутствует",
@@ -50,7 +50,7 @@
             "category": {
                 "id": "111-1",
                 "name": "Производственные помещения",
-                "type": "CATEGORY_2",
+                "type": "CATEGORY_57",
                 "status": "ACTIVE",
                 "objectsCount": 102,
                 "parentId": "111",
@@ -70,7 +70,7 @@
             "visualType": "POLYGON",
             "coords": [51.843772872643854, 107.60356843120513],
             "status": "ACTIVE",
-            "area": 10,
+            "area": "10",
             "dopInfo": "Имеется стационарная телефонная линия с возможностью подключения Интернета по технологии ADSL",
             "typeArea": "BROWNFIELD",
             "cadastralNumber": "52:36:0003008:555",
@@ -96,7 +96,7 @@
             "category": {
                 "id": "111-3",
                 "name": "Земельные участки",
-                "type": "CATEGORY_3",
+                "type": "CATEGORY_57",
                 "status": "ACTIVE",
                 "parentId": "111"
             },
@@ -114,7 +114,7 @@
             "visualType": "POLYGON",
             "coords": [51.83954286969279, 107.58108615524323],
             "status": "ACTIVE",
-            "area": 50,
+            "area": "50",
             "dopInfo": "Имеется стационарная телефонная линия с возможностью подключения Интернета по технологии ADSL",
             "typeArea": "BROWNFIELD",
             "cadastralNumber": "52:36:0003008:555",

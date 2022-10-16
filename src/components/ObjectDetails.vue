@@ -124,7 +124,7 @@
                     {{ activeObject['typeOfOwnership']['title'] }}
                 </div>
             </div>
-            <div class="card-data-block" v-if="activeObject['manager']['name']">
+            <div class="card-data-block" v-if="activeObject['manager']">
                 <div class="card-data-block__title">Контактное лицо</div>
                 <div class="card-manager">
                     <div class="row">

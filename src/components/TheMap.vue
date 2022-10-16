@@ -41,6 +41,7 @@
                                         <img
                                             :src="'https://invest-buryatia.ru' + item['category']['img']"
                                             v-if="item['category']['img']"
+                                            :title="item['category']['type']"
                                         />
                                         <img
                                             v-else
@@ -49,6 +50,7 @@
                                                     ? iconsMarker[item['category']['type']]
                                                     : iconsMarker['default']
                                             "
+                                            :title="item['category']['type']"
                                         />
                                     </l-icon>
                                 </l-marker>
@@ -63,6 +65,7 @@
                                         <img
                                             :src="'https://invest-buryatia.ru' + item['category']['img']"
                                             v-if="item['category']['img']"
+                                            :title="item['category']['type']"
                                         />
                                         <img
                                             v-else
@@ -71,6 +74,7 @@
                                                     ? iconsMarker[item['category']['type']]
                                                     : iconsMarker['default']
                                             "
+                                            :title="item['category']['type']"
                                         />
                                     </l-icon>
                                 </l-marker>
@@ -100,6 +104,8 @@
 </template>
 
 <script>
+import { polygonCenter } from '@/utils/polygon'
+
 import { LMap, LTileLayer, LControlZoom, LMarker, LIcon, LPolygon, LPopup } from '@vue-leaflet/vue-leaflet'
 import MarkerCluster from './MarkerCluster.vue'
 import { mapGetters, mapActions } from 'vuex'
@@ -145,47 +151,7 @@ export default {
             this.$emit('update:center', center)
         },
 
-        poligonReqFormat(polygon) {
-            let reqFormat = []
-            polygon[0].forEach((element) => {
-                reqFormat.push([element['latitude'], element['longitude']])
-            })
-
-            return reqFormat
-        },
-
-        polygonCenter(polygon) {
-            let reqFormat = this.poligonReqFormat(polygon)
-            let polygonLength = reqFormat.length
-            let polygonPoints = reqFormat || []
-
-            let x = 0,
-                y = 0,
-                area = 0,
-                i,
-                j,
-                f,
-                point1,
-                point2
-
-            for (i = 0, j = polygonLength - 1; i < polygonLength; j = i, i += 1) {
-                point1 = polygonPoints[i]
-                point2 = polygonPoints[j]
-                f = point1[0] * point2[1] - point2[0] * point1[1]
-
-                x += (point1[0] + point2[0]) * f
-                y += (point1[1] + point2[1]) * f
-
-                area += point1[0] * point2[1]
-                area -= point1[1] * point2[0]
-            }
-
-            area /= 2
-
-            f = area * 6
-
-            return [x / f, y / f]
-        },
+        polygonCenter,
 
         async onLeafletReady() {
             await this.$nextTick()
@@ -207,6 +173,9 @@ export default {
             setTimeout(() => {
                 this.leafletReady = true
             }, 0)
+        },
+        districts() {
+            console.log('districts watch')
         },
     },
 }

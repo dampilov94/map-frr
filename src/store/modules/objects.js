@@ -1,8 +1,8 @@
 export default {
     actions: {
         async fetchObjects(ctx) {
-            // const res = await fetch('./objects2.json')
-            const res = await fetch('https://invest-buryatia.ru/map/objects.php')
+            const res = await fetch('./example_objects.json')
+            // const res = await fetch('https://invest-buryatia.ru/map/objects.php')
             const objects = (await res.json()).items
 
             ctx.commit('updateObjects', objects)

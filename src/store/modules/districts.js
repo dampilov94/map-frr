@@ -1,4 +1,16 @@
 export default {
+    state: {
+        districts: [],
+        showDistricts: true,
+    },
+    getters: {
+        districts(state) {
+            return state.districts
+        },
+        showDistricts(state) {
+            return state.showDistricts
+        },
+    },
     actions: {
         async fetchDistricts(ctx) {
             const res = await fetch('./districts.json')
@@ -6,18 +18,16 @@ export default {
 
             ctx.commit('updateDistricts', districts)
         },
+        setShowDistricts({ commit }, value) {
+            commit('setShowDistricts', value)
+        },
     },
     mutations: {
         updateDistricts(state, districts) {
             state.districts = districts
         },
-    },
-    state: {
-        districts: [],
-    },
-    getters: {
-        allDistricts(state) {
-            return state.districts
+        setShowDistricts(state, value) {
+            state.showDistricts = value
         },
     },
 }

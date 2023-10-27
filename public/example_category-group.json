@@ -2,35 +2,49 @@
     {
         "id": "111",
         "name": "Инвестиционные площадки",
-        "type": "CATEGORY_12",
+        "type": "filter",
         "status": "ACTIVE",
-        "objectsCount": 602,
+
         "child": [
             {
                 "id": "111-1",
                 "name": "Здания",
-                "type": "CATEGORY_2",
+                "type": "CATEGORY_83",
                 "status": "ACTIVE",
-                "objectsCount": 102,
                 "parentId": "111",
                 "child": []
             },
             {
                 "id": "111-2",
                 "name": "Земельные участки",
-                "type": "CATEGORY_1",
+                "type": "CATEGORY_76",
                 "status": "ACTIVE",
-                "objectsCount": 471,
                 "parentId": "111",
                 "child": []
             },
             {
                 "id": "111-3",
                 "name": "Площадки",
-                "type": "CATEGORY_3",
+                "type": "CATEGORY_57",
                 "status": "ACTIVE",
-                "objectsCount": 8,
                 "parentId": "111",
+                "child": []
+            }
+        ]
+    },
+    {
+        "id": "222",
+        "name": "ТОСЭР",
+        "type": "toser",
+        "status": "ACTIVE",
+
+        "child": [
+            {
+                "id": "222-1",
+                "name": "ТОСЭР",
+                "type": "CATEGORY_83",
+                "status": "ACTIVE",
+                "parentId": "222",
                 "child": []
             }
         ]

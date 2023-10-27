@@ -174,9 +174,6 @@ export default {
                 this.leafletReady = true
             }, 0)
         },
-        districts() {
-            console.log('districts watch')
-        },
     },
 }
 </script>

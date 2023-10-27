@@ -3,7 +3,7 @@
         <div class="filter-panel__header">
             <div class="row mb-4 mb-lg-5">
                 <div class="col my-auto">
-                    <a href="/index1.php">
+                    <a href="/">
                         <img src="./../assets/logo.png" alt="" class="filter-panel__logo d-none d-lg-block" />
                     </a>
                 </div>
@@ -59,8 +59,11 @@
                     <div @click="showCollapse('accordion-' + item.id)" class="accordion-btn">
                         <label class="checkbox-btn" v-on:click.stop>
                             <input type="checkbox" :value="item.id" v-model="checkedCategoriesGroups" />
-                            <div class="checkbox-btn__cont">
+                            <div class="checkbox-btn__cont" v-if="item.type == 'filter'">
                                 <i class="fa fa-map-o" aria-hidden="true"></i>
+                            </div>
+                            <div class="checkbox-btn__cont" v-else>
+                                <i class="fa fa-sun-o" aria-hidden="true"></i>
                             </div>
                         </label>
                         {{ item.name }}
@@ -80,29 +83,25 @@
                                     :nullOption="{ name: 'Категория земель', value: null }"
                                 />
                             </div>
-                            <!-- <div class="mb-3">
-                                            <label>Тип</label>
-                                            <div class="radio-bts">
-                                                <div class="radio-bts__item">
-                                                    <input
-                                                        id="TypeArea-1"
-                                                        type="radio"
-                                                        :value="'greenfield'"
-                                                        v-model="selectedTypeArea"
-                                                    />
-                                                    <label for="TypeArea-1">Greenfield</label>
-                                                </div>
-                                                <div class="radio-bts__item">
-                                                    <input
-                                                        id="TypeArea-2"
-                                                        type="radio"
-                                                        :value="'brownfield'"
-                                                        v-model="selectedTypeArea"
-                                                    />
-                                                    <label for="TypeArea-2">Brownfield</label>
-                                                </div>
-                                            </div>
-                                        </div> -->
+                            <div class="mb-3">
+                                <label>Тип</label>
+                                <div class="radio-bts">
+                                    <div
+                                        class="radio-bts__item"
+                                        :class="{ active: selectedTypeArea == 'greenfield' }"
+                                        @click="selectTypeArea('greenfield')"
+                                    >
+                                        <label>Greenfield</label>
+                                    </div>
+                                    <div
+                                        class="radio-bts__item"
+                                        :class="{ active: selectedTypeArea == 'brownfield' }"
+                                        @click="selectTypeArea('brownfield')"
+                                    >
+                                        <label>Brownfield</label>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="mb-3">
                                 <label>Общая площадь(га)</label>
                                 <div class="filter-slider">
@@ -266,6 +265,12 @@ export default {
             'fetchTypeOfOwnership',
         ]),
 
+        freeCategory(category_id) {
+            return this.allObjects.filter((item) => {
+                return category_id == item.category.id
+            })
+        },
+
         initListenCollapseSearch() {
             const myCollapsible = document.getElementById('search-panel-body')
             myCollapsible.addEventListener('shown.bs.collapse', () => {
@@ -331,7 +336,7 @@ export default {
 
         countOfCategory(id) {
             let arrCategory = this.findObjectsByParams.filter((item) => {
-                return +item.category.id == +id
+                return item.category.id == id
             })
 
             return arrCategory.length
@@ -347,6 +352,14 @@ export default {
 
         resetFilterChildCategories() {
             this.checkedChildCategories = [undefined]
+        },
+
+        selectTypeArea(typeArea) {
+            if (this.selectedTypeArea == typeArea) {
+                this.selectedTypeArea = null
+            } else {
+                this.selectedTypeArea = typeArea
+            }
         },
     },
 
@@ -392,6 +405,8 @@ export default {
             }
         )
     },
+
+    watch: {},
 
     components: {
         AppSelect,
@@ -745,7 +760,7 @@ export default {
             border-right: none;
         }
 
-        input[type='radio']:checked + label {
+        &.active label {
             background: #292e91;
             color: #fff;
         }

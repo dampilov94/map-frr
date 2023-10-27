@@ -106,42 +106,40 @@ export default {
 
         filteredByMainParams() {
             if (!this.inputSearch && this.filter) {
-                return (
-                    this.allObjects
-                        .filter((item) => {
-                            //Фильтер по району municipalArea
-                            return item.municipalArea == this.filter.district || this.filter.district == null
-                        })
-                        .filter((item) => {
-                            // Фильтер по категории земель
-                            return item.landCategory == this.filter.landCategory || this.filter.landCategory == null
-                        })
-                        // .filter((item) => {
-                        //     // Фильтер по типу
-                        //     return item.typeArea.toLowerCase() == this.filter.typeArea || this.filter.typeArea == null
-                        // })
-                        .filter((item) => {
-                            // Фильтер по площади
-                            return (
-                                +item.area.replace(',', '.') >= this.filter.area[0] &&
-                                +item.area.replace(',', '.') <= this.filter.area[1]
-                            )
-                        })
-                        .filter((item) => {
-                            // Фильтер по дистанции до уу
-                            return (
-                                item.distanceToUU >= this.filter.distanceToUU[0] &&
-                                item.distanceToUU <= this.filter.distanceToUU[1]
-                            )
-                        })
-                        .filter((item) => {
-                            // Фильтер по форме собственности
-                            return (
-                                item.typeOfOwnership.id == this.filter.selectedTypeOfOwnership ||
-                                this.filter.selectedTypeOfOwnership == null
-                            )
-                        })
-                )
+                return this.allObjects
+                    .filter((item) => {
+                        //Фильтер по району municipalArea
+                        return item.municipalArea == this.filter.district || this.filter.district == null
+                    })
+                    .filter((item) => {
+                        // Фильтер по категории земель
+                        return item.landCategory == this.filter.landCategory || this.filter.landCategory == null
+                    })
+                    .filter((item) => {
+                        // Фильтер по типу
+                        return item.typeArea.toLowerCase() == this.filter.typeArea || this.filter.typeArea == null
+                    })
+                    .filter((item) => {
+                        // Фильтер по площади
+                        return (
+                            +item.area.replace(',', '.') >= this.filter.area[0] &&
+                            +item.area.replace(',', '.') <= this.filter.area[1]
+                        )
+                    })
+                    .filter((item) => {
+                        // Фильтер по дистанции до уу
+                        return (
+                            item.distanceToUU >= this.filter.distanceToUU[0] &&
+                            item.distanceToUU <= this.filter.distanceToUU[1]
+                        )
+                    })
+                    .filter((item) => {
+                        // Фильтер по форме собственности
+                        return (
+                            item.typeOfOwnership.id == this.filter.typeOfOwnership ||
+                            this.filter.typeOfOwnership == null
+                        )
+                    })
             } else {
                 return this.allObjects
             }
@@ -206,12 +204,6 @@ export default {
                 }
                 this.zoom = 18
             }, 1)
-        },
-
-        freeCategory(category_id) {
-            return this.allObjects.filter((item) => {
-                return category_id == item.category.id
-            })
         },
     },
 

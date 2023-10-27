@@ -1,4 +1,4 @@
-import { createStore, createLogger } from 'vuex'
+import { createStore } from 'vuex'
 
 import districts from './modules/districts'
 import messages from './modules/messages'
@@ -9,10 +9,6 @@ import categoryGroup from './modules/category-group'
 import map from './modules/map'
 
 const plugins = []
-
-if (process.env.NODE_ENV === 'development') {
-    plugins.push(createLogger())
-}
 
 export default createStore({
     plugins,
